@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hedi Manai — AI Agent Builder | LangChain, CrewAI & MCP Expert</title>
+  <meta name="description"
+    content="Hedi Manai is an AI engineer specializing in building intelligent agents with LangChain, CrewAI, and MCP. Explore prompt engineering techniques, agentic frameworks, and ready-to-use templates.">
+  <meta name="keywords"
+    content="AI agent builder, prompt engineering, LangChain, CrewAI, MCP, Model Context Protocol, RAG, agentic AI, Hedi Manai">
+  <meta name="author" content="Hedi Manai">
+  <meta property="og:title" content="Hedi Manai — AI Agent Builder">
+  <meta property="og:description"
+    content="Designing intelligent agents with LangChain, CrewAI, and MCP. Prompt engineering techniques and editable templates.">
+  <meta property="og:type" content="website">
+  <meta name="robots" content="index, follow">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Geist+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f6f5f1;
+      --surface: #ffffff;
+      --surface2: #f0ede8;
+      --border: #e4e1da;
+      --border-h: #c4c1ba;
+      --text-s: #171714;
+      --muted: #9a9890;
+      --nav-bg: rgba(246, 245, 241, 0.93);
+      --accent: #171714;
+      --accent-i: #f6f5f1;
+      --radius: 12px;
+      --sh-sm: 0 1px 4px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.04);
+      --sh-md: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    html.dark {
+      --bg: #111110;
+      --surface: #1a1a18;
+      --surface2: #141412;
+      --border: #2a2a28;
+      --border-h: #444440;
+      --text-s: #e8e4dc;
+      --muted: #6a6860;
+      --nav-bg: rgba(17, 17, 16, 0.93);
+      --accent: #e8e4dc;
+      --accent-i: #111110;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-s);
+      font-family: 'Geist Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 500;
+      height: 52px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 2.5rem;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .nav-brand {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-s);
+      margin-right: 2rem;
+      white-space: nowrap;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-links::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-link {
+      font-size: 0.63rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0.9rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: color 0.2s;
+      border: none;
+      background: none;
+      font-family: 'Geist Mono', monospace;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0.9rem;
+      right: 0.9rem;
+      height: 1.5px;
+      background: var(--text-s);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.22s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text-s);
+    }
+
+    .nav-link.active {
+      color: var(--text-s);
+    }
+
+    .nav-link.active::after {
+      transform: scaleX(1);
+    }
+
+    .nav-spacer {
+      flex: 1;
+      min-width: 0.5rem;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 100px;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border-h);
+      color: var(--text-s);
+    }
+
+    /* ── HERO ── */
+    #home {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 7rem 2rem 5rem;
+      position: relative;
+      overflow: hidden;
+      margin-top: 52px;
+    }
+
+    #home::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 25% 15%, rgba(195, 185, 170, 0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 45% at 80% 78%, rgba(170, 182, 195, 0.17) 0%, transparent 60%),
+        linear-gradient(160deg, #eceae6 0%, #f6f5f1 50%);
+      transition: background 0.3s;
+    }
+
+    html.dark #home::before {
+      background:
+        radial-gradient(ellipse 60% 50% at 25% 15%, rgba(55, 45, 35, 0.4) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 45% at 80% 78%, rgba(35, 45, 60, 0.25) 0%, transparent 60%),
+        linear-gradient(160deg, #161614 0%, #111110 50%);
+    }
+
+    #home::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image: radial-gradient(circle, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
+      background-size: 26px 26px;
+      mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 10%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 10%, transparent 100%);
+    }
+
+    html.dark #home::after {
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 680px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Lora', serif;
+      font-size: clamp(2.6rem, 6.5vw, 4.4rem);
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--text-s);
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .hero-sub {
+      font-size: 0.78rem;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 40ch;
+      margin: 0 auto 2.4rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
+      background: var(--accent);
+      color: var(--accent-i);
+      border: 1px solid var(--accent);
+      border-radius: 100px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.8;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
+      background: var(--surface);
+      color: var(--text-s);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      box-shadow: var(--sh-sm);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-h);
+      box-shadow: var(--sh-md);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: bounce 2.5s ease infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(6px);
+      }
+    }
+
+    /* ── SHARED ── */
+    .section {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.7rem;
+    }
+
+    .section-heading {
+      font-family: 'Lora', serif;
+      font-size: clamp(1.7rem, 3.5vw, 2.5rem);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      color: var(--text-s);
+      margin-bottom: 0.9rem;
+    }
+
+    .section-heading em {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .section-intro {
+      font-size: 0.77rem;
+      line-height: 1.85;
+      color: var(--muted);
+      max-width: 52ch;
+      margin-bottom: 3rem;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    /* ── CAROUSEL ── */
+    .carousel-track {
+      display: grid;
+      grid-template-columns: repeat(var(--cols, 3), 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--sh-sm);
+    }
+
+    .ccard {
+      background: var(--surface);
+      padding: 1.6rem 1.5rem;
+      transition: background 0.18s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ccard:hover {
+      background: var(--surface2);
+    }
+
+    .ccard-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .ccard-date {
+      font-size: 0.57rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .ccard-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border-h);
+      flex-shrink: 0;
+    }
+
+    .ccard-topic {
+      font-size: 0.55rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 0.12rem 0.55rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .ccard-title {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 1.3;
+      color: var(--text-s);
+      margin-bottom: 0.5rem;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .ccard-excerpt {
+      font-size: 0.67rem;
+      line-height: 1.75;
+      color: var(--muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .ccard-read {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.62rem;
+      color: var(--muted);
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+      transition: color 0.2s, border-color 0.2s;
+      margin-top: auto;
+    }
+
+    .ccard:hover .ccard-read {
+      color: var(--text-s);
+      border-color: var(--border-h);
+    }
+
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.3rem;
+    }
+
+    .carousel-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .cdot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border-h);
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .cdot.active {
+      background: var(--accent);
+    }
+
+    .carousel-right {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .carr-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .carr-btn:hover:not(:disabled) {
+      border-color: var(--border-h);
+      color: var(--text-s);
+    }
+
+    .carr-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* ── TEMPLATES CTA ── */
+    .tpl-cta {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--sh-sm);
+      margin-top: 3rem;
+    }
+
+    .tpl-cta-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1.8rem 2rem;
+      flex-wrap: wrap;
+    }
+
+    .tpl-cta-left {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+    }
+
+    .tpl-cta-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .tpl-cta-label {
+      font-size: 0.56rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .tpl-cta-title {
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-s);
+    }
+
+    .tpl-cta-desc {
+      font-size: 0.66rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      line-height: 1.6;
+    }
+
+    .tpl-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.3rem;
+      border-radius: 100px;
+      background: var(--accent);
+      color: var(--accent-i);
+      border: 1px solid var(--accent);
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.67rem;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+
+    .tpl-cta-btn:hover {
+      opacity: 0.8;
+    }
+
+    .tpl-tabs-preview {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding: 1rem 2rem;
+      background: var(--surface2);
+      flex-wrap: wrap;
+    }
+
+    .tpl-tab-pill {
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.7rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 600;
+      background: var(--surface);
+    }
+
+    .tpl-tab-pill.active-pill {
+      background: var(--accent);
+      color: var(--accent-i);
+      border-color: var(--accent);
+    }
+
+    .tpl-tabs-label {
+      font-size: 0.58rem;
+      color: var(--muted);
+      opacity: 0.6;
+      align-self: center;
+      margin-left: auto;
+    }
+
+    .tpl-features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--border);
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .tpl-feat {
+      background: var(--surface2);
+      padding: 1rem 1.4rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+    }
+
+    .tpl-feat-icon {
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tpl-feat-text {
+      font-size: 0.64rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .tpl-feat-label {
+      display: block;
+      font-size: 0.67rem;
+      color: var(--text-s);
+      margin-bottom: 0.15rem;
+      font-weight: 400;
+    }
+
+    /* ── CONTACT ── */
+    .contact-inner {
+      max-width: 500px;
+    }
+
+    .contact-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 1.3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.68rem;
+      color: var(--text-s);
+      text-decoration: none;
+      box-shadow: var(--sh-sm);
+      transition: all 0.2s;
+    }
+
+    .contact-link:hover {
+      border-color: var(--border-h);
+      box-shadow: var(--sh-md);
+    }
+
+    .contact-link svg {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .footer-brand {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-s);
+    }
+
+    .footer-sub {
+      font-size: 0.61rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      font-size: 0.61rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover {
+      color: var(--text-s);
+    }
+
+    .footer-note {
+      font-size: 0.6rem;
+      color: var(--muted);
+      opacity: 0.5;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 760px) {
+      .tpl-features {
+        grid-template-columns: 1fr;
+      }
+
+      .tpl-cta-header {
+        padding: 1.4rem 1.2rem;
+      }
+
+      .tpl-tabs-preview {
+        padding: 0.9rem 1.2rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav {
+        padding: 0 1rem;
+      }
+
+      .nav-brand {
+        margin-right: 0.75rem;
+        font-size: 0.95rem;
+      }
+
+      .nav-spacer {
+        display: none;
+      }
+
+      .icon-btn {
+        margin-left: auto;
+      }
+
+      .nav-link {
+        padding: 0 0.6rem;
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
+      }
+
+      .nav-link::after {
+        left: 0.6rem;
+        right: 0.6rem;
+      }
+
+      .section {
+        padding: 4rem 1.2rem;
+      }
+
+      .hero-title {
+        font-size: 2.4rem;
+      }
+
+      .tpl-cta-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .contact-links {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .site-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.8rem 1.2rem;
+      }
+
+      .footer-links {
+        gap: 1rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .nav-brand {
+        font-size: 0.88rem;
+        margin-right: 0.5rem;
+      }
+
+      .nav-link {
+        padding: 0 0.45rem;
+        font-size: 0.54rem;
+        letter-spacing: 0.04em;
+      }
+
+      .icon-btn {
+        width: 30px;
+        height: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" aria-label="Primary navigation" role="navigation">
+    <a class="nav-brand" href="#home">Hedi Manai</a>
+    <div class="nav-links">
+      <a class="nav-link active" href="#home">Home</a>
+      <a class="nav-link" href="#latest-notes">Writing</a>
+      <a class="nav-link" href="#prompt-templates">Templates</a>
+      <a class="nav-link" href="#contact">Contact</a>
+    </div>
+    <div class="nav-spacer"></div>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+      <svg id="themeIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="home" aria-label="Introduction">
+    <div class="hero-inner">
+      <h1 class="hero-title">Hedi MANAI<br><em>AI Agent Builder.</em></h1>
+      <p class="hero-sub">Designing intelligent agents with LangChain, CrewAI, and MCP — turning complex AI into simple,
+        working systems.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="#latest-notes">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+          </svg>
+          Read the writing
+        </a>
+        <a class="btn-ghost" href="#prompt-templates">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" />
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+          </svg>
+          Browse templates
+        </a>
+      </div>
+    </div>
+    <div class="scroll-hint" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+      Scroll
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- WRITING -->
+  <section id="latest-notes" aria-label="Writing and field notes">
+    <div class="section">
+      <p class="section-eyebrow reveal">Learn by doing</p>
+      <h2 class="section-heading reveal">Building AI that<br><em>actually works.</em></h2>
+      <p class="section-intro reveal">Short, honest breakdowns of what I learn shipping AI systems — from raw prompts to
+        fully orchestrated multi-agent pipelines. What worked, what didn't, and exactly why.</p>
+
+      <div class="reveal">
+        <div class="carousel-track" id="carouselTrack"></div>
+        <div class="carousel-nav">
+          <div class="carousel-dots" id="carouselDots"></div>
+          <div class="carousel-right">
+            <button class="carr-btn" id="carrPrev" aria-label="Previous page">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <button class="carr-btn" id="carrNext" aria-label="Next page">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- TEMPLATES -->
+  <section id="prompt-templates" aria-label="Prompt templates">
+    <div class="section">
+      <p class="section-eyebrow reveal">Prompt templates</p>
+      <h2 class="section-heading reveal">Write better prompts,<br><em>right now.</em></h2>
+      <p class="section-intro reveal">A focused set of editable templates for text, image, and video — built to remove
+        the blank-page problem. Open in the browser, customise, copy.</p>
+
+      <div class="tpl-cta reveal" role="complementary" aria-label="Prompt templates tool">
+        <div class="tpl-cta-header">
+          <div class="tpl-cta-left">
+            <div class="tpl-cta-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+              </svg>
+            </div>
+            <div>
+              <div class="tpl-cta-label">No account · No tracking</div>
+              <div class="tpl-cta-title">Editable prompt templates</div>
+              <div class="tpl-cta-desc">Text, image, and video prompts you can edit directly in the browser and copy in
+                one click.</div>
+            </div>
+          </div>
+          <a class="tpl-cta-btn" href="prompt-templates.html">
+            Browse templates
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </a>
+        </div>
+        <div class="tpl-tabs-preview" aria-hidden="true">
+          <span class="tpl-tab-pill active-pill">Text</span>
+          <span class="tpl-tab-pill">Image</span>
+          <span class="tpl-tab-pill">Video</span>
+          <span class="tpl-tabs-label">Browse &amp; edit for free</span>
+        </div>
+        <div class="tpl-features" aria-hidden="true">
+          <div class="tpl-feat">
+            <svg class="tpl-feat-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            <div class="tpl-feat-text">
+              <span class="tpl-feat-label">Edit in the browser</span>
+              Click any template to customise it — no copy-paste into another tool.
+            </div>
+          </div>
+          <div class="tpl-feat">
+            <svg class="tpl-feat-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+            <div class="tpl-feat-text">
+              <span class="tpl-feat-label">One-click copy &amp; share</span>
+              Copy to clipboard or share natively — keyboard shortcuts included.
+            </div>
+          </div>
+          <div class="tpl-feat">
+            <svg class="tpl-feat-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <div class="tpl-feat-text">
+              <span class="tpl-feat-label">No tracking</span>
+              Fully client-side. No sign-up, no data sent, no cookies.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- CONTACT -->
+  <section id="contact" aria-label="Contact">
+    <div class="section">
+      <p class="section-eyebrow reveal">Get in touch</p>
+      <h2 class="section-heading reveal">Let's build<br><em>something.</em></h2>
+      <div class="contact-inner reveal">
+        <p class="section-intro" style="margin-bottom:0;">Have a project in mind? Whether it's a RAG pipeline, a
+          multi-agent system, or an MCP integration — I'm open to new collaborations.</p>
+        <div class="contact-links">
+          <a class="contact-link" href="/cdn-cgi/l/email-protection#87e4e8e9f3e6e4f3c7efe2e3eeeae6e9e6eea9e4e8ea">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            Email
+          </a>
+          <a class="contact-link" href="https://linkedin.com/in/hedimanai" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round">
+              <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" />
+              <rect x="2" y="9" width="4" height="12" />
+              <circle cx="4" cy="4" r="2" />
+            </svg>
+            LinkedIn
+          </a>
+          <a class="contact-link" href="https://github.com/hedimanai" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round">
+              <path
+                d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
+            </svg>
+            GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div>
+      <div class="footer-brand">Hedi Manai</div>
+      <div class="footer-sub">Let's build AI agents together.</div>
+    </div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a class="footer-link" href="#home">Home</a>
+      <a class="footer-link" href="#latest-notes">Writing</a>
+      <a class="footer-link" href="#prompt-templates">Templates</a>
+      <a class="footer-link" href="#contact">Contact</a>
+    </nav>
+    <div class="footer-note">Built with clarity · No fluff</div>
+  </footer>
+
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-14DXVR7B6E"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-14DXVR7B6E');
+  </script>
+
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script>
+    /* ─────────────────────────────────────────────
+       NOTES DATA
+    ───────────────────────────────────────────── */
+    const notes = [
+      { date: 'Feb 2025', topic: 'MCP', title: 'Why I stopped writing custom tool integrations and switched to MCP', excerpt: 'Every agent I built had the same problem: tool code was tangled with orchestration logic, and swapping one tool meant touching the whole pipeline. MCP changed that.', href: 'lesson-mcp.html' },
+      { date: 'Jan 2025', topic: 'CrewAI', title: 'The backstory field is a prompt — treat it like one', excerpt: "Most CrewAI tutorials write generic backstories like 'you are a helpful researcher.' That's wasted context. The backstory is the highest-leverage place to constrain an agent.", href: 'lesson-crewai.html' },
+      { date: 'Jan 2025', topic: 'LangChain', title: "RAG is not retrieval — it's context management", excerpt: 'The common mistake is treating RAG as a search problem: embed, retrieve, inject. In practice, the hard part is deciding what context to pass, how much, and in what order.', href: 'lesson-langchain.html' },
+      { date: 'Dec 2024', topic: 'Prompt Engineering', title: 'Three prompt structures I use on every production task', excerpt: "After shipping enough agent pipelines, the same three patterns show up: role + constraint + format. Not because they're clever, but because they make output predictable.", href: 'lesson-prompt-engineering.html' },
+      { date: 'Dec 2024', topic: 'LangChain', title: 'When to use a chain and when to use an agent', excerpt: 'Chains are deterministic: you define the steps, the model follows them. Agents are dynamic: the model decides. The tradeoff is predictability vs. flexibility.', href: 'notes.html' },
+      { date: 'Nov 2024', topic: 'Prompt Engineering', title: 'Iterative refinement is not trial and error', excerpt: 'Treating prompts as hypotheses changes how you improve them. Each iteration should test exactly one variable — role, format, constraint, or example count.', href: 'notes.html' }
+    ];
+
+    /* ─────────────────────────────────────────────
+       CAROUSEL
+       Uses ResizeObserver on the track element so
+       column count reacts to the track's actual
+       rendered width — not window.innerWidth, which
+       is wider than the constrained layout.
+    ───────────────────────────────────────────── */
+    const track = document.getElementById('carouselTrack');
+    const dots = document.getElementById('carouselDots');
+    const btnPrev = document.getElementById('carrPrev');
+    const btnNext = document.getElementById('carrNext');
+
+    let page = 0;
+    let perPage = 3; // updated by ResizeObserver before first paint
+
+    function colsForWidth(w) {
+      if (w < 480) return 1;
+      if (w < 740) return 2;
+      return 3;
+    }
+
+    function totalPages() {
+      return Math.ceil(notes.length / perPage);
+    }
+
+    function renderCarousel() {
+      const tp = totalPages();
+      if (page >= tp) page = tp - 1;
+      if (page < 0) page = 0;
+
+      // set CSS grid columns via custom property on the element
+      track.style.setProperty('--cols', perPage);
+
+      // cards
+      track.innerHTML = notes
+        .slice(page * perPage, page * perPage + perPage)
+        .map(n => `
+      <a class="ccard" href="${n.href}">
+        <div class="ccard-meta">
+          <span class="ccard-date">${n.date}</span>
+          <span class="ccard-sep"></span>
+          <span class="ccard-topic">${n.topic}</span>
+        </div>
+        <div class="ccard-title">${n.title}</div>
+        <div class="ccard-excerpt">${n.excerpt}</div>
+        <span class="ccard-read">
+          Read
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>`).join('');
+
+      // dots
+      dots.innerHTML = Array.from({ length: tp }, (_, i) =>
+        `<button class="cdot${i === page ? ' active' : ''}" data-p="${i}" aria-label="Page ${i + 1}"></button>`
+      ).join('');
+      dots.querySelectorAll('.cdot').forEach(d =>
+        d.addEventListener('click', () => { page = +d.dataset.p; renderCarousel(); })
+      );
+
+      btnPrev.disabled = page === 0;
+      btnNext.disabled = page === tp - 1;
+    }
+
+    btnPrev.addEventListener('click', () => { if (page > 0) { page--; renderCarousel(); } });
+    btnNext.addEventListener('click', () => { if (page < totalPages() - 1) { page++; renderCarousel(); } });
+
+    // ResizeObserver fires after layout — gives true rendered width.
+    // Wrapped in requestAnimationFrame to defer DOM mutations to the next
+    // paint cycle, preventing "ResizeObserver loop" feedback errors.
+    let rafRO;
+    new ResizeObserver(entries => {
+      cancelAnimationFrame(rafRO);
+      rafRO = requestAnimationFrame(() => {
+        const w = entries[0].contentRect.width;
+        const next = colsForWidth(w);
+        if (next !== perPage) {
+          perPage = next;
+          page = 0; // reset page when layout changes
+        }
+        renderCarousel();
+      });
+    }).observe(track);
+
+    /* ─────────────────────────────────────────────
+       SCROLL SPY
+       Reads offsetTop at scroll time — fully
+       deterministic, no IntersectionObserver races.
+       Active section = last section whose top edge
+       has scrolled past the activation threshold.
+    ───────────────────────────────────────────── */
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    const NAV_H = 52;
+
+    function updateSpy() {
+      const scrollY = window.scrollY;
+      // threshold: 30% down the viewport, below the nav
+      const threshold = scrollY + NAV_H + window.innerHeight * 0.3;
+
+      let activeId = sections[0].id;
+      sections.forEach(s => {
+        if (s.offsetTop <= threshold) activeId = s.id;
+      });
+
+      navLinks.forEach(l =>
+        l.classList.toggle('active', l.getAttribute('href') === '#' + activeId)
+      );
+    }
+
+    let spyRaf;
+    window.addEventListener('scroll', () => {
+      cancelAnimationFrame(spyRaf);
+      spyRaf = requestAnimationFrame(updateSpy);
+    }, { passive: true });
+
+    updateSpy(); // run once on load
+
+    /* ─────────────────────────────────────────────
+       DARK MODE
+    ───────────────────────────────────────────── */
+    let isDark = false;
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      isDark = !isDark;
+      document.documentElement.classList.toggle('dark', isDark);
+      document.getElementById('themeIcon').innerHTML = isDark
+        ? '<path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>'
+        : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    });
+
+    /* ─────────────────────────────────────────────
+       SCROLL REVEAL
+    ───────────────────────────────────────────── */
+    const revealObserver = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+      }),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  </script>
+</body>
+
+</html>
