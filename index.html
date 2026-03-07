@@ -1166,12 +1166,27 @@
        NOTES DATA
     ───────────────────────────────────────────── */
     const notes = [
-      { date: 'Feb 2025', topic: 'MCP', title: 'Why I stopped writing custom tool integrations and switched to MCP', excerpt: 'Every agent I built had the same problem: tool code was tangled with orchestration logic, and swapping one tool meant touching the whole pipeline. MCP changed that.', href: 'lesson-mcp.html' },
-      { date: 'Jan 2025', topic: 'CrewAI', title: 'The backstory field is a prompt — treat it like one', excerpt: "Most CrewAI tutorials write generic backstories like 'you are a helpful researcher.' That's wasted context. The backstory is the highest-leverage place to constrain an agent.", href: 'lesson-crewai.html' },
-      { date: 'Jan 2025', topic: 'LangChain', title: "RAG is not retrieval — it's context management", excerpt: 'The common mistake is treating RAG as a search problem: embed, retrieve, inject. In practice, the hard part is deciding what context to pass, how much, and in what order.', href: 'lesson-langchain.html' },
-      { date: 'Dec 2024', topic: 'Prompt Engineering', title: 'Three prompt structures I use on every production task', excerpt: "After shipping enough agent pipelines, the same three patterns show up: role + constraint + format. Not because they're clever, but because they make output predictable.", href: 'lesson-prompt-engineering.html' },
-      { date: 'Dec 2024', topic: 'LangChain', title: 'When to use a chain and when to use an agent', excerpt: 'Chains are deterministic: you define the steps, the model follows them. Agents are dynamic: the model decides. The tradeoff is predictability vs. flexibility.', href: 'notes.html' },
-      { date: 'Nov 2024', topic: 'Prompt Engineering', title: 'Iterative refinement is not trial and error', excerpt: 'Treating prompts as hypotheses changes how you improve them. Each iteration should test exactly one variable — role, format, constraint, or example count.', href: 'notes.html' }
+      {
+        date: 'Mar 2026',
+        topic: 'Prompt Engineering',
+        title: 'Chain-of-Thought and Self-Consistency',
+        excerpt: 'A field-tested guide to chain-of-thought, self-consistency, key variants, and when these reasoning techniques fail.',
+        href: 'prompt-engineering-03.html'
+      },
+      {
+        date: 'Mar 2026',
+        topic: 'Prompt Engineering',
+        title: 'Building the Production System Prompt',
+        excerpt: 'How to write production-grade system prompts with reliable structure, tool rules, and safety boundaries.',
+        href: 'prompt-engineering-02.html'
+      },
+      {
+        date: 'Mar 2026',
+        topic: 'Prompt Engineering',
+        title: 'What Is Prompt Engineering? A First Principles Introduction',
+        excerpt: 'A rigorous first-principles introduction to how prompts work, why they fail, and the core techniques that matter in practice.',
+        href: 'prompt-engineering-01.html'
+      }
     ];
 
     /* ─────────────────────────────────────────────
