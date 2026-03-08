@@ -914,12 +914,12 @@
 
   <!-- NAV -->
   <nav class="nav" aria-label="Primary navigation" role="navigation">
-    <a class="nav-brand" href="#home">Hedi Manai</a>
+    <a class="nav-brand" href="index.html#home">Hedi Manai</a>
     <div class="nav-links">
-      <a class="nav-link active" href="#home">Home</a>
-      <a class="nav-link" href="#latest-notes">Writing</a>
-      <a class="nav-link" href="#prompt-templates">Templates</a>
-      <a class="nav-link" href="#contact">Contact</a>
+      <a class="nav-link active" href="index.html#home">Home</a>
+      <a class="nav-link" href="index.html#latest-notes">Writing</a>
+      <a class="nav-link" href="index.html#prompt-templates">Templates</a>
+      <a class="nav-link" href="index.html#contact">Contact</a>
     </div>
     <div class="nav-spacer"></div>
     <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
@@ -1140,10 +1140,10 @@
       <div class="footer-sub">Let's build AI agents together.</div>
     </div>
     <nav class="footer-links" aria-label="Footer navigation">
-      <a class="footer-link" href="#home">Home</a>
-      <a class="footer-link" href="#latest-notes">Writing</a>
-      <a class="footer-link" href="#prompt-templates">Templates</a>
-      <a class="footer-link" href="#contact">Contact</a>
+      <a class="footer-link" href="index.html#home">Home</a>
+      <a class="footer-link" href="index.html#latest-notes">Writing</a>
+      <a class="footer-link" href="index.html#prompt-templates">Templates</a>
+      <a class="footer-link" href="index.html#contact">Contact</a>
     </nav>
     <div class="footer-note">Built with clarity · No fluff</div>
   </footer>
@@ -1169,9 +1169,9 @@
       {
         date: 'Mar 2026',
         topic: 'Prompt Engineering',
-        title: 'Chain-of-Thought and Self-Consistency',
-        excerpt: 'A field-tested guide to chain-of-thought, self-consistency, key variants, and when these reasoning techniques fail.',
-        href: 'prompt-engineering-03.html'
+        title: 'What Is Prompt Engineering? A First Principles Introduction',
+        excerpt: 'A rigorous first-principles introduction to how prompts work, why they fail, and the core techniques that matter in practice.',
+        href: 'prompt-engineering-01.html'
       },
       {
         date: 'Mar 2026',
@@ -1183,9 +1183,9 @@
       {
         date: 'Mar 2026',
         topic: 'Prompt Engineering',
-        title: 'What Is Prompt Engineering? A First Principles Introduction',
-        excerpt: 'A rigorous first-principles introduction to how prompts work, why they fail, and the core techniques that matter in practice.',
-        href: 'prompt-engineering-01.html'
+        title: 'Chain-of-Thought and Self-Consistency',
+        excerpt: 'A field-tested guide to chain-of-thought, self-consistency, key variants, and when these reasoning techniques fail.',
+        href: 'prompt-engineering-03.html'
       }
     ];
 
@@ -1293,9 +1293,11 @@
         if (s.offsetTop <= threshold) activeId = s.id;
       });
 
-      navLinks.forEach(l =>
-        l.classList.toggle('active', l.getAttribute('href') === '#' + activeId)
-      );
+      navLinks.forEach(l => {
+        const href = l.getAttribute('href') || '';
+        const hash = href.includes('#') ? href.slice(href.indexOf('#')) : '';
+        l.classList.toggle('active', hash === '#' + activeId);
+      });
     }
 
     let spyRaf;
