@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluation and Testing — Hedi Manai</title>
+<meta name="description" content="How to build the eval datasets, metrics, and automated pipelines needed to measure prompt and retrieval quality systematically — and how to know when an AI system is actually ready to ship.">
+<meta name="author" content="Hedi Manai">
+<meta property="og:title" content="Evaluation and Testing">
+<meta property="og:description" content="The discipline that turns prompt engineering into engineering. Eval datasets, metrics, LLM-as-judge, RAGAS, regression pipelines, and the ship/no-ship decision.">
+<meta property="og:type" content="article">
+<meta name="robots" content="index, follow">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS  — identical to site system
+───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #f6f5f1;
+  --surface: #ffffff;
+  --surface2:#f0ede8;
+  --border:  #e4e1da;
+  --border-h:#c4c1ba;
+  --text-s:  #171714;
+  --muted:   #9a9890;
+  --nav-bg:  rgba(246,245,241,0.93);
+  --accent:  #171714;
+  --accent-i:#f6f5f1;
+  --radius:  12px;
+  --sh-sm:   0 1px 4px rgba(0,0,0,0.06),0 2px 10px rgba(0,0,0,0.04);
+  --sh-md:   0 4px 20px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04);
+  --col-body: 680px;
+  --col-aside: 188px;
+  --col-gap:   4rem;
+}
+html.dark {
+  --bg:      #111110;
+  --surface: #1a1a18;
+  --surface2:#141412;
+  --border:  #2a2a28;
+  --border-h:#444440;
+  --text-s:  #e8e4dc;
+  --muted:   #6a6860;
+  --nav-bg:  rgba(17,17,16,0.93);
+  --accent:  #e8e4dc;
+  --accent-i:#111110;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text-s);
+  font-family: 'Geist Mono', monospace;
+  min-height: 100vh; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ─────────────────────────────────────────────
+   READING PROGRESS
+───────────────────────────────────────────── */
+.progress {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+  height: 2px; background: transparent; pointer-events: none;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: var(--accent);
+  transition: width 0.08s linear;
+}
+
+/* ─────────────────────────────────────────────
+   NAV
+───────────────────────────────────────────── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  height: 52px; background: var(--nav-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 2.5rem;
+  transition: background 0.3s, border-color 0.3s;
+}
+.nav-brand {
+  font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 600;
+  letter-spacing: -0.02em; color: var(--text-s);
+  margin-right: 2rem; white-space: nowrap; text-decoration: none; flex-shrink: 0;
+}
+.nav-links { display: flex; align-items: center; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.nav-links::-webkit-scrollbar { display: none; }
+.nav-link {
+  font-size: 0.63rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--muted); padding: 0 0.9rem; height: 52px;
+  display: flex; align-items: center; white-space: nowrap;
+  transition: color 0.2s; border: none; background: none;
+  font-family: 'Geist Mono', monospace; position: relative; text-decoration: none;
+}
+.nav-link::after {
+  content: ''; position: absolute; bottom: 0; left: 0.9rem; right: 0.9rem;
+  height: 1.5px; background: var(--text-s);
+  transform: scaleX(0); transform-origin: left; transition: transform 0.22s ease;
+}
+.nav-link:hover { color: var(--text-s); }
+.nav-link.active { color: var(--text-s); }
+.nav-link.active::after { transform: scaleX(1); }
+.nav-spacer { flex: 1; min-width: 0.5rem; }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 100px; flex-shrink: 0;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.icon-btn:hover { border-color: var(--border-h); color: var(--text-s); }
+
+/* ─────────────────────────────────────────────
+   SERIES BANNER
+───────────────────────────────────────────── */
+.series-banner {
+  margin-top: 52px;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  padding: 0.55rem 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+.series-label {
+  display: flex; align-items: center; gap: 0.55rem;
+  font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.series-label span { color: var(--text-s); font-weight: 500; }
+.series-nav { display: flex; align-items: center; gap: 0.35rem; }
+.series-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.25rem 0.7rem; border-radius: 100px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); text-decoration: none; transition: all 0.2s;
+  font-family: 'Geist Mono', monospace;
+}
+.series-btn:hover { border-color: var(--border-h); color: var(--text-s); }
+.series-btn svg { flex-shrink: 0; }
+
+/* ─────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────── */
+.hero {
+  border-bottom: 1px solid var(--border);
+  padding: 4rem 2.5rem 3.5rem;
+}
+.hero-inner { max-width: calc(var(--col-body) + var(--col-aside) + var(--col-gap) + 5rem); margin: 0 auto; }
+
+.crumb {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; margin-bottom: 1.8rem;
+  transition: color 0.2s;
+}
+.crumb:hover { color: var(--text-s); }
+
+.article-meta {
+  display: flex; align-items: center; gap: 0.7rem;
+  flex-wrap: wrap; margin-bottom: 1.3rem;
+}
+.meta-pill {
+  font-size: 0.54rem; letter-spacing: 0.13em; text-transform: uppercase;
+  padding: 0.15rem 0.65rem; border-radius: 100px;
+  border: 1px solid var(--border); color: var(--muted); background: var(--surface);
+}
+.meta-pill.num { background: var(--accent); color: var(--accent-i); border-color: var(--accent); }
+.meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border-h); flex-shrink: 0; }
+.meta-item { font-size: 0.6rem; color: var(--muted); }
+
+.hero-title {
+  font-family: 'Lora', serif;
+  font-size: clamp(1.85rem, 4vw, 2.9rem);
+  font-weight: 600; letter-spacing: -0.03em; line-height: 1.1;
+  color: var(--text-s); margin-bottom: 1rem;
+}
+.hero-title em { font-style: italic; font-weight: 500; color: var(--muted); }
+
+.hero-lead {
+  font-size: 0.875rem; line-height: 1.8; color: var(--muted);
+  max-width: 54ch;
+}
+
+/* ─────────────────────────────────────────────
+   CONTENT AREA — two-column on large screens
+───────────────────────────────────────────── */
+.content-wrap {
+  max-width: calc(var(--col-body) + var(--col-aside) + var(--col-gap) + 5rem);
+  margin: 0 auto;
+  padding: 3.5rem 2.5rem 6rem;
+  display: grid;
+  grid-template-columns: var(--col-aside) 1fr;
+  gap: 0 var(--col-gap);
+  align-items: start;
+}
+
+/* ─────────────────────────────────────────────
+   TOC — SIDEBAR
+───────────────────────────────────────────── */
+.toc-sidebar {
+  position: sticky; top: 72px;
+  grid-column: 1;
+}
+.toc-desktop { display: block; }
+.toc-mobile  { display: none; }
+
+.toc-eyebrow {
+  font-size: 0.55rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 1rem;
+}
+
+.toc-list { list-style: none; }
+.toc-list li { position: relative; }
+.toc-list li + li { margin-top: 0.05rem; }
+
+.toc-link {
+  display: block; font-size: 0.63rem; line-height: 1.5;
+  color: var(--muted); text-decoration: none;
+  padding: 0.32rem 0 0.32rem 0.85rem;
+  border-left: 1.5px solid var(--border);
+  transition: color 0.18s, border-color 0.18s;
+}
+.toc-link:hover { color: var(--text-s); border-left-color: var(--border-h); }
+.toc-link.active { color: var(--text-s); border-left-color: var(--accent); }
+
+.toc-list .sub { padding-left: 1.45rem; font-size: 0.59rem; }
+.toc-list .sub .toc-link { border-left: none; padding-left: 0; color: var(--muted); opacity: 0.75; }
+.toc-list .sub .toc-link:hover { opacity: 1; color: var(--text-s); }
+
+/* ─────────────────────────────────────────────
+   ARTICLE BODY
+───────────────────────────────────────────── */
+.article {
+  grid-column: 2;
+  min-width: 0;
+  max-width: var(--col-body);
+}
+
+.section { margin-bottom: 3.5rem; }
+.section:last-child { margin-bottom: 0; }
+
+.article h2 {
+  font-family: 'Lora', serif; font-size: 1.25rem;
+  font-weight: 600; letter-spacing: -0.02em; line-height: 1.25;
+  color: var(--text-s); margin-bottom: 1.1rem; padding-top: 0.25rem;
+}
+.article h3 {
+  font-family: 'Lora', serif; font-size: 0.98rem;
+  font-weight: 600; font-style: italic; letter-spacing: -0.01em;
+  color: var(--text-s); margin-bottom: 0.7rem; margin-top: 2rem;
+}
+.article p {
+  font-size: 0.875rem; line-height: 1.9; color: var(--text-s);
+  margin-bottom: 1.1rem;
+}
+.article p:last-child { margin-bottom: 0; }
+.article strong { font-weight: 500; }
+.article a {
+  color: var(--text-s); text-decoration: underline;
+  text-underline-offset: 3px; text-decoration-color: var(--border-h);
+  transition: text-decoration-color 0.2s;
+}
+.article a:hover { text-decoration-color: var(--text-s); }
+.article ul, .article ol {
+  margin: 0.9rem 0 1.1rem 1.25rem;
+  font-size: 0.875rem; line-height: 1.85; color: var(--text-s);
+}
+.article li { margin-bottom: 0.4rem; }
+.article li:last-child { margin-bottom: 0; }
+sup a.ref {
+  font-size: 0.6rem; color: var(--muted); text-decoration: none;
+  margin-left: 1px; font-variant-numeric: tabular-nums; transition: color 0.2s;
+}
+sup a.ref:hover { color: var(--text-s); }
+
+code {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.77rem; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 5px; color: var(--text-s);
+}
+
+/* ─────────────────────────────────────────────
+   SECTION DIVIDER
+───────────────────────────────────────────── */
+.rule { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+/* ─────────────────────────────────────────────
+   PROMPT EXAMPLE BLOCK
+───────────────────────────────────────────── */
+.example {
+  margin: 1.7rem 0;
+  border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--sh-sm);
+}
+.example-header {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  font-size: 0.56rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
+}
+.example-header svg { flex-shrink: 0; }
+.example-header .badge {
+  margin-left: auto; font-size: 0.52rem; letter-spacing: 0.12em;
+  padding: 0.1rem 0.5rem; border-radius: 100px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+}
+.example-header .badge.good { border-color: #c6e6c8; background: #f0faf0; color: #3a7d44; }
+.example-header .badge.bad  { border-color: #f0c6c6; background: #fdf0f0; color: #9b3333; }
+html.dark .example-header .badge.good { border-color: #2a4a2c; background: #1a2e1b; color: #6aaa70; }
+html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a1a; color: #aa6060; }
+
+.example-body {
+  background: var(--surface); padding: 1.1rem 1.2rem;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.71rem; line-height: 1.9;
+  color: var(--text-s); white-space: pre-wrap; overflow-x: auto;
+}
+.example-body .ph  { color: var(--muted); background: var(--surface2); padding: 0 3px; border-radius: 3px; border: 1px solid var(--border); }
+.example-body .key { font-weight: 500; color: var(--text-s); }
+.example-body .cmt { color: var(--muted); }
+
+/* ─────────────────────────────────────────────
+   CALLOUT
+───────────────────────────────────────────── */
+.callout {
+  margin: 1.7rem 0; padding: 1rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 2.5px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+}
+.callout-label {
+  font-size: 0.53rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 0.45rem;
+}
+.callout .callout-p {
+  font-size: 0.81rem; line-height: 1.78; color: var(--text-s); margin-bottom: 0;
+}
+
+/* ─────────────────────────────────────────────
+   TECHNIQUE CARDS
+───────────────────────────────────────────── */
+.technique-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; margin: 1.7rem 0;
+  box-shadow: var(--sh-sm);
+}
+.technique-card {
+  background: var(--surface); padding: 1rem 1.1rem;
+  transition: background 0.15s;
+}
+.technique-card:hover { background: var(--surface2); }
+.technique-name {
+  font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 500; color: var(--text-s); margin-bottom: 0.35rem;
+}
+.technique-desc {
+  font-size: 0.67rem; line-height: 1.65; color: var(--muted);
+}
+
+/* ─────────────────────────────────────────────
+   ANATOMY DIAGRAM
+───────────────────────────────────────────── */
+.anatomy {
+  margin: 1.7rem 0;
+  border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--sh-sm);
+}
+.anatomy-row {
+  display: flex; align-items: stretch;
+  border-bottom: 1px solid var(--border);
+}
+.anatomy-row:last-child { border-bottom: none; }
+.anatomy-label {
+  flex-shrink: 0; width: 110px; padding: 0.75rem 0.9rem;
+  background: var(--surface2); border-right: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: flex-start;
+}
+.anatomy-label span {
+  font-size: 0.54rem; letter-spacing: 0.15em; text-transform: uppercase;
+  font-weight: 500; color: var(--muted); padding-top: 1px;
+}
+.anatomy-content {
+  flex: 1; padding: 0.75rem 1rem;
+  background: var(--surface);
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.7rem; line-height: 1.8; color: var(--text-s);
+}
+.anatomy-content .cmt { color: var(--muted); font-size: 0.65rem; }
+
+/* ─────────────────────────────────────────────
+   PIPELINE / FLOW DIAGRAM
+───────────────────────────────────────────── */
+.cot-flow {
+  margin: 1.7rem 0;
+  border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--sh-sm);
+}
+.cot-step {
+  display: flex; align-items: stretch;
+  border-bottom: 1px solid var(--border); position: relative;
+}
+.cot-step:last-child { border-bottom: none; }
+.cot-step-num {
+  flex-shrink: 0; width: 44px;
+  background: var(--surface2); border-right: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 500; color: var(--muted); letter-spacing: 0.1em;
+}
+.cot-step-body {
+  flex: 1; padding: 0.85rem 1.1rem;
+  background: var(--surface);
+}
+.cot-step-label {
+  font-size: 0.53rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 0.3rem;
+}
+.cot-step-content {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.7rem; line-height: 1.75; color: var(--text-s);
+}
+.cot-step-content .cmt { color: var(--muted); }
+.cot-step.output .cot-step-num {
+  background: var(--accent); color: var(--accent-i);
+}
+
+/* ─────────────────────────────────────────────
+   DATA TABLE
+───────────────────────────────────────────── */
+.data-table-wrap {
+  margin: 1.7rem 0; overflow-x: auto;
+  border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--sh-sm);
+}
+.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.71rem; line-height: 1.65;
+  background: var(--surface);
+}
+.data-table th {
+  background: var(--surface2); padding: 0.55rem 1rem;
+  text-align: left; font-weight: 500; letter-spacing: 0.06em;
+  color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.data-table td {
+  padding: 0.7rem 1rem; border-bottom: 1px solid var(--border);
+  color: var(--text-s); vertical-align: top;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+
+/* ─────────────────────────────────────────────
+   REFERENCES
+───────────────────────────────────────────── */
+.ref-list {
+  list-style: none; margin: 0;
+  border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--sh-sm);
+}
+.ref-item {
+  display: flex; gap: 0.9rem; align-items: baseline;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.7rem; line-height: 1.7; color: var(--text-s);
+  transition: background 0.15s;
+}
+.ref-item:last-child { border-bottom: none; }
+.ref-item:hover { background: var(--surface2); }
+.ref-num { flex-shrink: 0; min-width: 1.4rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.ref-item a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: transparent; transition: all 0.2s; }
+.ref-item a:hover { color: var(--text-s); text-decoration-color: var(--border-h); }
+
+/* ─────────────────────────────────────────────
+   SERIES NAVIGATION
+───────────────────────────────────────────── */
+.lesson-nav {
+  max-width: calc(var(--col-body) + var(--col-aside) + var(--col-gap) + 5rem);
+  margin: 0 auto; padding: 0 2.5rem 5rem;
+  display: flex; gap: 1rem; flex-wrap: wrap;
+}
+.lesson-nav-card {
+  flex: 1; min-width: 200px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 1.2rem 1.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--sh-sm);
+  text-decoration: none; color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.lesson-nav-card:hover { border-color: var(--border-h); box-shadow: var(--sh-md); }
+.lesson-nav-card.disabled { opacity: 0.35; pointer-events: none; }
+.lesson-nav-label { font-size: 0.54rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+.lesson-nav-title { font-family: 'Lora', serif; font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em; color: var(--text-s); }
+.lesson-nav-arrow { color: var(--muted); flex-shrink: 0; transition: transform 0.2s; }
+.lesson-nav-card:hover .lesson-nav-arrow.right { transform: translateX(3px); }
+.lesson-nav-card:hover .lesson-nav-arrow.left  { transform: translateX(-3px); }
+
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid var(--border); max-width: calc(var(--col-body) + var(--col-aside) + var(--col-gap) + 5rem); margin: 0 auto; }
+.site-footer {
+  max-width: calc(var(--col-body) + var(--col-aside) + var(--col-gap) + 5rem);
+  margin: 0 auto; border-top: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.footer-brand { font-family: 'Lora', serif; font-size: 0.95rem; font-weight: 600; letter-spacing: -0.02em; color: var(--text-s); }
+.footer-sub { font-size: 0.61rem; color: var(--muted); margin-top: 0.2rem; }
+.footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.footer-link { font-size: 0.61rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-link:hover { color: var(--text-s); }
+.footer-note { font-size: 0.6rem; color: var(--muted); opacity: 0.5; }
+
+/* ─────────────────────────────────────────────
+   SCROLL-IN ANIMATION
+───────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+.hero-inner { animation: fadeUp 0.65s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media (max-width: 960px) {
+  :root { --col-gap: 3rem; }
+}
+@media (max-width: 860px) {
+  .content-wrap { grid-template-columns: 1fr; padding-top: 0; }
+  .toc-sidebar { grid-column: 1; position: static; margin-bottom: 2.5rem; }
+  .article { grid-column: 1; max-width: 100%; }
+  .toc-desktop { display: none; }
+  .toc-mobile  { display: block; }
+  .toc-accordion {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .toc-accordion summary {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.8rem 1rem;
+    font-size: 0.59rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+    cursor: pointer; list-style: none;
+  }
+  .toc-accordion summary::-webkit-details-marker { display: none; }
+  .toc-accordion[open] summary { border-bottom: 1px solid var(--border); }
+  .toc-accordion .toc-list { padding: 0.6rem 0.9rem 0.8rem; }
+  .toc-accordion .toc-link { font-size: 0.67rem; padding: 0.33rem 0 0.33rem 0.75rem; }
+  .technique-grid { grid-template-columns: 1fr; }
+  .cot-step-num { width: 34px; font-size: 0.55rem; }
+}
+@media (max-width: 640px) {
+  .nav { padding: 0 1rem; }
+  .nav-brand { margin-right: 0.75rem; font-size: 0.95rem; }
+  .nav-spacer { display: none; }
+  .icon-btn { margin-left: auto; }
+  .nav-link { padding: 0 0.6rem; font-size: 0.58rem; letter-spacing: 0.06em; }
+  .nav-link::after { left: 0.6rem; right: 0.6rem; }
+  .series-banner { padding: 0.5rem 1.2rem; }
+  .hero { padding: 3rem 1.2rem 2.5rem; }
+  .content-wrap { padding: 2rem 1.2rem 5rem; }
+  .lesson-nav { padding: 0 1.2rem 4rem; }
+  .site-footer { flex-direction: column; align-items: flex-start; padding: 1.8rem 1.2rem; }
+  .footer-links { gap: 1rem; }
+  .article p, .article li { font-size: 0.84rem; }
+  .anatomy-label { width: 82px; }
+  .anatomy-label span { font-size: 0.5rem; }
+  .anatomy-content { font-size: 0.67rem; }
+}
+@media (max-width: 380px) {
+  .nav-brand { font-size: 0.88rem; margin-right: 0.5rem; }
+  .nav-link { padding: 0 0.45rem; font-size: 0.54rem; }
+  .icon-btn { width: 30px; height: 30px; }
+  .series-btn { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+  <!-- Reading progress -->
+  <div class="progress" aria-hidden="true">
+    <div class="progress-fill" id="pf"></div>
+  </div>
+
+  <!-- ─── NAV ─── -->
+  <nav class="nav" aria-label="Primary navigation" role="navigation">
+    <a class="nav-brand" href="index.html">Hedi Manai</a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html#home">Home</a>
+      <a class="nav-link active" href="index.html#latest-notes">Writing</a>
+      <a class="nav-link" href="index.html#prompt-templates">Templates</a>
+      <a class="nav-link" href="index.html#contact">Contact</a>
+    </div>
+    <div class="nav-spacer"></div>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme (D)">
+      <svg id="themeIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ─── SERIES BANNER ─── -->
+  <div class="series-banner">
+    <div class="series-label">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+      </svg>
+      Prompt Engineering Series &nbsp;·&nbsp; <span>Lesson 06 of 06</span>
+    </div>
+    <nav class="series-nav" aria-label="Series navigation">
+      <a class="series-btn" href="prompt-engineering-05.html">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Prev
+      </a>
+    </nav>
+  </div>
+
+  <!-- ─── HERO ─── -->
+  <header class="hero">
+    <div class="hero-inner">
+      <a class="crumb" href="index.html#latest-notes">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Writing
+      </a>
+
+      <div class="article-meta">
+        <span class="meta-pill num">Lesson 06</span>
+        <span class="meta-pill">Prompt Engineering</span>
+        <span class="meta-dot" aria-hidden="true"></span>
+        <span class="meta-item">Mar 2026</span>
+        <span class="meta-dot" aria-hidden="true"></span>
+        <span class="meta-item">28 min read</span>
+      </div>
+
+      <h1 class="hero-title">
+        Evaluation<br>
+        <em>and Testing</em>
+      </h1>
+      <p class="hero-lead">The discipline that turns prompt engineering into engineering. How to build eval datasets, choose the right metrics, design LLM-as-judge pipelines, measure RAG quality end-to-end, run automated regression tests — and make a defensible decision about whether your system is ready to ship.</p>
+    </div>
+  </header>
+
+  <!-- ─── CONTENT: TOC + ARTICLE ─── -->
+  <div class="content-wrap">
+
+    <!-- SIDEBAR TOC (desktop) -->
+    <aside class="toc-sidebar" aria-label="Table of contents">
+
+      <nav class="toc-desktop">
+        <p class="toc-eyebrow">On this page</p>
+        <ol class="toc-list" id="tocList">
+          <li><a class="toc-link active" href="#why-eval">1. Why eval is the missing piece</a></li>
+          <li><a class="toc-link" href="#eval-stack">2. The evaluation stack</a></li>
+          <li class="sub"><a class="toc-link" href="#unit-evals">Unit evals</a></li>
+          <li class="sub"><a class="toc-link" href="#integration-evals">Integration evals</a></li>
+          <li class="sub"><a class="toc-link" href="#system-evals">System evals</a></li>
+          <li><a class="toc-link" href="#dataset">3. Building the eval dataset</a></li>
+          <li class="sub"><a class="toc-link" href="#golden-set">The golden set</a></li>
+          <li class="sub"><a class="toc-link" href="#adversarial">Adversarial cases</a></li>
+          <li><a class="toc-link" href="#metrics">4. Metrics taxonomy</a></li>
+          <li class="sub"><a class="toc-link" href="#exact-match">Exact match</a></li>
+          <li class="sub"><a class="toc-link" href="#semantic-sim">Semantic similarity</a></li>
+          <li class="sub"><a class="toc-link" href="#llm-judge">LLM-as-judge</a></li>
+          <li><a class="toc-link" href="#judge-design">5. Designing the judge prompt</a></li>
+          <li><a class="toc-link" href="#rag-eval">6. Evaluating RAG pipelines</a></li>
+          <li class="sub"><a class="toc-link" href="#retrieval-metrics">Retrieval metrics</a></li>
+          <li class="sub"><a class="toc-link" href="#generation-metrics">Generation metrics</a></li>
+          <li><a class="toc-link" href="#regression">7. Regression testing and CI</a></li>
+          <li><a class="toc-link" href="#ship-decision">8. The ship decision</a></li>
+          <li><a class="toc-link" href="#refs">References</a></li>
+        </ol>
+      </nav>
+
+      <div class="toc-mobile">
+        <details class="toc-accordion">
+          <summary>
+            On this page
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <ol class="toc-list">
+            <li><a class="toc-link" href="#why-eval">1. Why eval is the missing piece</a></li>
+            <li><a class="toc-link" href="#eval-stack">2. The evaluation stack</a></li>
+            <li><a class="toc-link" href="#dataset">3. Building the eval dataset</a></li>
+            <li><a class="toc-link" href="#metrics">4. Metrics taxonomy</a></li>
+            <li><a class="toc-link" href="#judge-design">5. Designing the judge prompt</a></li>
+            <li><a class="toc-link" href="#rag-eval">6. Evaluating RAG pipelines</a></li>
+            <li><a class="toc-link" href="#regression">7. Regression testing and CI</a></li>
+            <li><a class="toc-link" href="#ship-decision">8. The ship decision</a></li>
+            <li><a class="toc-link" href="#refs">References</a></li>
+          </ol>
+        </details>
+      </div>
+
+    </aside>
+
+    <!-- ─── ARTICLE BODY ─── -->
+    <article class="article">
+
+      <p>Every earlier lesson in this series has involved a version of the same implicit claim: this prompt is better than that one. Better at what? Measured how? On which inputs? Compared to which baseline? If you cannot answer those questions with a number derived from a reproducible test, the claim is an opinion — and opinions about AI system quality have a remarkably poor track record in production.</p>
+
+      <p>Evaluation is the discipline that makes the claim rigorous. It is also the most consistently neglected part of the prompt engineering workflow. Teams spend weeks iterating on prompts against three or four manually verified examples, ship to production, and discover the failure modes three months later in user complaints. The reason is not laziness — it is that building an eval pipeline feels like overhead when you are trying to ship. It is not. It is the work. Skipping it means you are not engineering; you are guessing at scale.</p>
+
+      <p>This final lesson builds the complete evaluation framework: what to measure, how to measure it, and the infrastructure that makes measurement automatic.</p>
+
+      <hr class="rule">
+
+      <!-- ─── §1 WHY EVAL IS THE MISSING PIECE ─── -->
+      <section class="section reveal" id="why-eval">
+        <h2>1. Why evaluation is the missing discipline</h2>
+
+        <p>There is a version of software engineering in which correctness is defined by a test suite. You write a function, you write tests against a specification, and the tests either pass or fail. The quality of the function is not a matter of opinion; it is a matter of evidence. Prompt engineering, practised without evals, has no equivalent of this. The prompt either "feels right" or it does not — and that is not a foundation you can build a reliable system on.</p>
+
+        <p>The core difficulty is that language model outputs are stochastic and high-dimensional. The same prompt can produce different outputs on successive runs. The output space is not a binary pass/fail but a continuous distribution over quality. This means evaluation for LLM systems is inherently probabilistic: you are not asking "does this return the right value?" but "does this system produce outputs in the acceptable quality band, reliably, across a representative distribution of inputs?"</p>
+
+        <div class="callout">
+          <p class="callout-label">The fundamental shift</p>
+          <p class="callout-p">In traditional software, correctness is a property of an individual execution. In LLM systems, correctness is a property of the output distribution. A prompt that produces excellent output on 80% of inputs and catastrophically wrong output on 20% is not a good prompt — it is a latent incident. Evaluation exists to measure the full distribution, not just the examples you happened to check.</p>
+        </div>
+
+        <p>Shankar et al. (2024) document this precisely in their study of LLM evaluation practices across engineering teams: teams without structured eval pipelines consistently overestimate their system's quality, misattribute failures to the wrong components, and regress on previously working capabilities when iterating on prompts without regression tests.<sup><a href="#r1" class="ref">[1]</a></sup> The eval infrastructure is not a luxury that comes after the product is working. It is the instrument that tells you whether the product is working in the first place.</p>
+
+        <p>A secondary reason evaluation is neglected: it requires making the quality bar explicit. Saying "the output should be helpful and accurate" is not a specification — it is a wish. Writing an eval forces you to operationalise quality: accurate with respect to what ground truth, helpful by what scoring rubric, evaluated against which input distribution. That exercise, uncomfortable as it is, surfaces disagreements about what the system is actually supposed to do before those disagreements surface in production.</p>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── §2 THE EVALUATION STACK ─── -->
+      <section class="section reveal" id="eval-stack">
+        <h2>2. The evaluation stack</h2>
+
+        <p>A mature evaluation framework has three layers, each answering a different question. Running only the top layer — end-to-end human evaluation — is expensive, slow, and produces no signal about where a failure originates. Running only the bottom layer — unit tests on individual prompts — tells you nothing about whether the full pipeline works. You need all three.</p>
+
+        <div class="cot-flow">
+          <div class="cot-step input">
+            <div class="cot-step-num">L1</div>
+            <div class="cot-step-body">
+              <p class="cot-step-label" id="unit-evals">Unit evals — prompt-level</p>
+              <p class="cot-step-content">Test a single prompt against a fixed set of (input, expected output) pairs. Fast, deterministic, cheap to run. Answers: "Does this prompt produce the right output format? Does it handle edge cases correctly? Does it regress when I change the wording?"</p>
+            </div>
+          </div>
+          <div class="cot-step">
+            <div class="cot-step-num">L2</div>
+            <div class="cot-step-body">
+              <p class="cot-step-label" id="integration-evals">Integration evals — pipeline-level</p>
+              <p class="cot-step-content">Test the full chain from input to final output, with all intermediate steps live. Answers: "Does the pipeline produce correct answers end-to-end? Does a change in step 2 break step 4? Do retrieval failures propagate into generation errors?"</p>
+            </div>
+          </div>
+          <div class="cot-step output">
+            <div class="cot-step-num">L3</div>
+            <div class="cot-step-body">
+              <p class="cot-step-label" id="system-evals">System evals — human-in-the-loop</p>
+              <p class="cot-step-content">Human raters assess output quality on a sample of real or realistic inputs, using a defined rubric. Answers: "Does the system produce outputs that real users would consider correct, helpful, and safe?" Ground truth for calibrating automated metrics.</p>
+            </div>
+          </div>
+        </div>
+
+        <p>In practice, L1 and L2 run automatically on every prompt change — they are your CI pipeline. L3 runs periodically (weekly, or before a major release) and when automated scores change in unexpected ways. The outputs of L3 are used to calibrate L1 and L2: if a judge prompt scores outputs highly that human raters consistently score poorly, the judge prompt needs to be revised.</p>
+
+        <p>The cost pyramid is inverted: L1 is cheap enough to run on every commit, L2 costs tens to hundreds of API calls per run, L3 costs human time. Design your pipeline so that L1 catches the majority of regressions before they reach L2, and L2 catches failures before they reach L3.</p>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── §3 BUILDING THE EVAL DATASET ─── -->
+      <section class="section reveal" id="dataset">
+        <h2>3. Building the eval dataset</h2>
+
+        <p>An eval dataset is a collection of (input, expected output, metadata) triples against which your system is measured. Building it well is one of the highest-leverage investments in the entire prompt engineering workflow — a dataset that does not represent your true input distribution will produce eval scores that are meaningless, or worse, misleading.</p>
+
+        <h3 id="golden-set">The golden set</h3>
+        <p>Start with a <strong>golden set</strong> of 50 to 100 manually verified examples. This is the minimum viable eval — small enough to annotate carefully, large enough to detect meaningful performance differences between prompt versions. The examples should be drawn from your actual or expected input distribution, not from convenient cases you can easily verify.</p>
+
+        <p>A well-constructed golden set has four components for each example: the input, the ground-truth answer, a rubric that defines what a correct response looks like, and a category label that lets you analyse performance by input type. The category label is particularly important — an aggregate score of 82% hides whether your system is failing uniformly or failing catastrophically on a specific subcategory.</p>
+
+        <div class="anatomy">
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Input</span></div>
+            <div class="anatomy-content">The exact input the system will receive. For RAG systems, this is the user query. For pipeline steps, this is the step's input including any injected context.
+<span class="cmt">→ Should represent real query patterns, not just easy or obvious cases.</span></div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Reference</span></div>
+            <div class="anatomy-content">The ground-truth answer, verified by a domain expert. May be a specific string (for exact-match tasks), a set of required claims (for faithfulness evaluation), or a rubric score with justification.
+<span class="cmt">→ This is your quality ceiling. If the reference is wrong, your metric is measuring the wrong thing.</span></div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Rubric</span></div>
+            <div class="anatomy-content">Explicit scoring criteria. What makes a response a 4 versus a 3? What are the hard disqualifiers (hallucinated facts, wrong format, missing required claims)?
+<span class="cmt">→ Without a rubric, human raters disagree and automated judges are uncalibrated.</span></div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Category</span></div>
+            <div class="anatomy-content">A label grouping similar examples: "factual lookup", "multi-hop reasoning", "ambiguous query", "out-of-scope request", "adversarial input".
+<span class="cmt">→ Enables slice analysis: which input types fail, and how often.</span></div>
+          </div>
+        </div>
+
+        <h3 id="adversarial">Adversarial and edge cases</h3>
+        <p>A golden set drawn only from representative inputs will miss the failure modes that matter most. Dedicate at least 20% of your eval set to adversarial and edge cases: inputs designed to probe the boundaries of the system's reliability.</p>
+
+        <div class="technique-grid">
+          <div class="technique-card">
+            <p class="technique-name">Boundary inputs</p>
+            <p class="technique-desc">Inputs at the edge of the system's intended scope. Does the system correctly decline out-of-scope requests, or does it attempt an answer with no basis?</p>
+          </div>
+          <div class="technique-card">
+            <p class="technique-name">Ambiguous queries</p>
+            <p class="technique-desc">Inputs with multiple plausible interpretations. Does the system ask for clarification or commit to one interpretation without acknowledging the ambiguity?</p>
+          </div>
+          <div class="technique-card">
+            <p class="technique-name">Conflicting context</p>
+            <p class="technique-desc">Inputs paired with retrieved context that contradicts the correct answer. Does the model faithfully reproduce the bad context, or does it resist?</p>
+          </div>
+          <div class="technique-card">
+            <p class="technique-name">Paraphrase variants</p>
+            <p class="technique-desc">The same question rephrased in three or four different ways. Significant quality variance across paraphrases reveals fragile prompts.</p>
+          </div>
+        </div>
+
+        <p>As the system matures, the most valuable additions to the eval set are <strong>failure-derived cases</strong>: real inputs from production where the system produced a wrong or problematic output. These are the cases you did not anticipate when you designed the system, which makes them the cases the system is most likely to continue failing on. Every production failure should produce at least one new eval case.</p>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── §4 METRICS TAXONOMY ─── -->
+      <section class="section reveal" id="metrics">
+        <h2>4. Metrics taxonomy</h2>
+
+        <p>No single metric captures output quality across all tasks. The right choice depends on the task type, the output format, and how much you can invest in annotation. The following three tiers cover the full range of LLM evaluation needs, from the cheapest to the most expressive.</p>
+
+        <h3 id="exact-match">Exact match and rule-based metrics</h3>
+        <p>Exact string match, regex matching, and schema validation are the cheapest and most reliable metrics available — when they are applicable. They are applicable when the output format is fully constrained: the model is expected to return a specific JSON schema, a classification label from a fixed vocabulary, a boolean, or a number. In these cases, a rule-based check is both faster and more reliable than any model-based metric.</p>
+
+        <p>The failure mode is obvious: exact match is too strict for any task involving natural language generation. A response that correctly answers a question in different words will fail an exact-match evaluation. Use rule-based metrics for output structure and factual keys (does the JSON contain the required fields? is the label in the allowed set?), not for the content of generated text.</p>
+
+        <h3 id="semantic-sim">Semantic similarity</h3>
+        <p>Reference-based metrics compare the generated output against a reference string using embeddings or n-gram overlap. ROUGE (Recall-Oriented Understudy for Gisting Evaluation) measures n-gram overlap and is the standard for summarisation tasks.<sup><a href="#r2" class="ref">[2]</a></sup> BERTScore computes token-level cosine similarity between the generated output and reference using contextual embeddings, which makes it more robust to paraphrase than n-gram methods.<sup><a href="#r3" class="ref">[3]</a></sup></p>
+
+        <p>The limitation of all reference-based metrics is that they require a reference. When multiple correct answers exist, or when the reference was written by a human who used particular phrasing, the score penalises correct paraphrases and rewards output that superficially resembles the reference regardless of factual correctness. Treat these metrics as necessary but not sufficient: high ROUGE does not mean high quality; low ROUGE does not mean low quality.</p>
+
+        <h3 id="llm-judge">LLM-as-judge</h3>
+        <p>The most expressive and increasingly dominant approach: use a second language model — typically a stronger model than the one being evaluated — as an automated judge. The judge model reads the input, the system output, and optionally a reference answer, and scores the output according to a rubric you define in the judge prompt.</p>
+
+        <p>Zheng et al. (2023) formalise this in the MT-Bench evaluation framework, demonstrating that GPT-4 as a judge achieves over 80% agreement with human expert evaluators — comparable to the agreement rate between two independent human annotators — across a range of open-ended generation tasks.<sup><a href="#r4" class="ref">[4]</a></sup> This finding has held across subsequent studies and has established LLM-as-judge as the practical standard for evaluating generated text at scale.</p>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Metric type</th>
+                <th>Cost per eval</th>
+                <th>Best for</th>
+                <th>Key limitation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Exact match / rule-based</td>
+                <td>Near zero</td>
+                <td>Structured outputs, labels, schemas</td>
+                <td>Too strict for free-form text</td>
+              </tr>
+              <tr>
+                <td>ROUGE / n-gram overlap</td>
+                <td>Near zero</td>
+                <td>Summarisation, translation</td>
+                <td>Penalises correct paraphrases</td>
+              </tr>
+              <tr>
+                <td>BERTScore</td>
+                <td>Low (local model)</td>
+                <td>Any task with a reference string</td>
+                <td>Requires reference; misses factual errors</td>
+              </tr>
+              <tr>
+                <td>LLM-as-judge</td>
+                <td>Medium (API call)</td>
+                <td>Open-ended generation, RAG answers</td>
+                <td>Judge biases; requires calibration</td>
+              </tr>
+              <tr>
+                <td>Human evaluation</td>
+                <td>High (annotator time)</td>
+                <td>Ground truth; judge calibration</td>
+                <td>Slow, expensive, not scalable</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── §5 DESIGNING THE JUDGE PROMPT ─── -->
+      <section class="section reveal" id="judge-design">
+        <h2>5. Designing the judge prompt</h2>
+
+        <p>An LLM judge is only as good as its judge prompt. A vague judge prompt produces noisy, inconsistent scores that add variance without adding signal. The design principles below are derived from the MT-Bench methodology and from the practical findings of Shen et al. (2023), who systematically catalogued the biases that uncalibrated judge prompts introduce.<sup><a href="#r5" class="ref">[5]</a></sup></p>
+
+        <p><strong>Use a point score with explicit criteria, not a relative comparison.</strong> Asking the judge to pick the better of two outputs introduces position bias — the judge systematically favours the output presented first. Absolute scoring against a rubric produces more consistent results and is easier to interpret.</p>
+
+        <p><strong>Define each score level explicitly.</strong> "Rate on a scale of 1 to 5" is not a rubric. A rubric tells the judge what specifically differentiates a 3 from a 4 — otherwise, score distributions cluster around 3-4 because the judge has no principled reason to use the extremes.</p>
+
+        <p><strong>Request a structured response with reasoning first.</strong> Forcing the judge to produce an explanation before committing to a score reduces positional anchoring and produces a reasoning trace you can inspect when scores are unexpected. This is the chain-of-thought principle applied to evaluation.</p>
+
+        <div class="example">
+          <div class="example-header">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            LLM-as-judge — faithfulness rubric
+            <span class="badge good">Recommended</span>
+          </div>
+          <div class="example-body"><span class="key">SYSTEM:</span>
+You are an impartial evaluator assessing the faithfulness of an AI assistant's
+response to a set of retrieved source passages.
+
+Faithfulness measures whether every factual claim in the response is
+explicitly supported by the provided passages. It does not measure whether
+the answer is correct — only whether the answer is grounded in the context.
+
+Score using this rubric:
+  <span class="key">1</span> — Response contains claims that directly contradict the passages.
+  <span class="key">2</span> — Response contains claims not present in the passages (hallucinated).
+  <span class="key">3</span> — Response is mostly grounded but includes one inference not in the passages.
+  <span class="key">4</span> — All claims are supported; minor rephrasing only.
+  <span class="key">5</span> — All claims are directly traceable to specific sentences in the passages.
+
+Respond with a JSON object:
+  "reasoning": string   <span class="cmt">// Explain your score, citing specific claims and passages.</span>
+  "score": integer      <span class="cmt">// 1–5 per the rubric above.</span>
+  "issues": array       <span class="cmt">// Specific unsupported or contradictory claims, if any.</span>
+
+<span class="key">USER:</span>
+Passages: <span class="ph">[retrieved context]</span>
+Response: <span class="ph">[model output to evaluate]</span></div>
+        </div>
+
+        <p>Three known biases to test for and mitigate in your judge prompt. <strong>Verbosity bias</strong>: judges tend to score longer responses higher regardless of content quality — counteract by explicitly penalising unnecessary length in the rubric. <strong>Self-enhancement bias</strong>: a model used as its own judge scores its own outputs higher than an independent judge would — use a different model family as the judge. <strong>Format bias</strong>: responses with markdown formatting, headers, and lists are scored higher than plain prose of equal quality — control for this by stripping or normalising output formatting before evaluation.</p>
+
+        <p>Calibrate your judge against human annotations before trusting it at scale. If your judge and your human raters disagree on more than 25% of examples, the judge prompt needs revision — not a stronger model, but a better rubric. Model capability is rarely the bottleneck in judge quality; rubric precision almost always is.</p>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── §6 EVALUATING RAG PIPELINES ─── -->
+      <section class="section reveal" id="rag-eval">
+        <h2>6. Evaluating RAG pipelines</h2>
+
+        <p>A RAG pipeline has two components that must be evaluated independently: the retrieval system and the generation system. Evaluating only the final output — "did the answer come out right?" — makes it impossible to localise failures. A wrong answer could mean the right chunks were retrieved but the model ignored them, or the wrong chunks were retrieved and the model faithfully reproduced them. The fix is different in each case.</p>
+
+        <p>Es et al. (2023) introduce the RAGAS framework — Retrieval-Augmented Generation Assessment — as a reference-free evaluation methodology that decomposes RAG quality into four independent metrics, each targeting a specific failure mode.<sup><a href="#r6" class="ref">[6]</a></sup></p>
+
+        <h3 id="retrieval-metrics">Retrieval metrics</h3>
+
+        <p><strong>Context recall</strong> measures whether the retrieved chunks contain enough information to answer the question. It is computed by checking whether each claim in the ground-truth answer is attributable to at least one retrieved chunk — a reference-based metric that requires a gold-standard answer but makes retrieval quality directly measurable. Low context recall means the correct information was not retrieved; the fix is in the chunking or retrieval configuration, not the generation prompt.</p>
+
+        <p><strong>Context precision</strong> measures the proportion of retrieved chunks that are actually relevant to the query. A system that retrieves ten chunks, of which only two are relevant, has low precision — and the eight irrelevant chunks are diluting the signal and potentially triggering the over-retrieval failures described in Lesson 05. Context precision is reference-free: it can be computed with an LLM judge that rates each retrieved chunk's relevance to the query independently.</p>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>What it measures</th>
+                <th>Reference needed?</th>
+                <th>Failure it detects</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Context recall</td>
+                <td>Coverage of ground truth in retrieved chunks</td>
+                <td>Yes</td>
+                <td>Retrieval miss</td>
+              </tr>
+              <tr>
+                <td>Context precision</td>
+                <td>Fraction of retrieved chunks that are relevant</td>
+                <td>No</td>
+                <td>Over-retrieval; context dilution</td>
+              </tr>
+              <tr>
+                <td>Faithfulness</td>
+                <td>Fraction of answer claims supported by retrieved context</td>
+                <td>No</td>
+                <td>Hallucination; context poisoning</td>
+              </tr>
+              <tr>
+                <td>Answer relevance</td>
+                <td>How directly the answer addresses the question</td>
+                <td>No</td>
+                <td>Retrieval–answer mismatch; hedging</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 id="generation-metrics">Generation metrics</h3>
+
+        <p><strong>Faithfulness</strong> is the most important RAG-specific generation metric. It measures whether every factual claim in the generated answer is supported by the retrieved context — not whether the answer is correct, but whether it is grounded. A faithful answer based on wrong context is still a faithfulness success; fixing the faithfulness score is a retrieval problem, not a generation problem. Use a judge prompt structured like the example in Section 5.</p>
+
+        <p><strong>Answer relevance</strong> measures whether the generated answer actually addresses the question asked. A common failure mode in RAG systems is over-hedging: the model produces a response like "Based on the available information, there are several considerations…" that is technically grounded but is not a direct answer to the query. Answer relevance is computed by asking a judge whether the question is fully answered, partially answered, or evaded — and it catches this hedging pattern that faithfulness scores miss entirely.</p>
+
+        <p>Run all four metrics on every eval set update. Track them as separate time series. A prompt change that improves faithfulness while degrading context precision, or improves answer relevance while degrading context recall, is telling you something specific about what changed — and that specificity is what makes iteration tractable.</p>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── §7 REGRESSION TESTING AND CI ─── -->
+      <section class="section reveal" id="regression">
+        <h2>7. Regression testing and CI</h2>
+
+        <p>A prompt is a software artefact. It should be version-controlled, reviewed, and tested before deployment — the same way any other code change is. The reason most teams do not do this is that the tooling for prompt versioning has historically been poor and the feedback loop for prompt changes has been informal. Both of those conditions have improved substantially. There is no longer a good excuse for deploying prompt changes without running a regression suite first.</p>
+
+        <p>The core requirement is simple: when any prompt in the system changes, run the full eval suite against that prompt and surface a diff of the score changes. A change that improves aggregate performance while regressing on a specific input category is only visible if you have the category labels and the historical baseline to compare against. Without that infrastructure, regressions propagate silently into production.</p>
+
+        <div class="example">
+          <div class="example-header">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            Automated eval pipeline — CI integration
+            <span class="badge">Infrastructure</span>
+          </div>
+          <div class="example-body"><span class="cmt"># Triggered on: pull request touching any prompt file</span>
+<span class="cmt"># Input: current prompt version + eval dataset (JSON)</span>
+<span class="cmt"># Output: score diff against main branch baseline</span>
+
+<span class="key">1. Load eval dataset</span>        <span class="cmt"># (input, reference, category, rubric) triples</span>
+<span class="key">2. Run system on all inputs</span>  <span class="cmt"># parallel API calls with the candidate prompt</span>
+<span class="key">3. Score outputs</span>             <span class="cmt"># rule-based + LLM judge per metric</span>
+<span class="key">4. Aggregate by category</span>     <span class="cmt"># factual / multi-hop / adversarial / edge-case</span>
+<span class="key">5. Diff against baseline</span>     <span class="cmt"># flag if any category drops > threshold (e.g. 3%)</span>
+<span class="key">6. Post report to PR</span>         <span class="cmt"># score table + flagged regressions</span>
+
+<span class="cmt"># Gate merge on: no category regression > threshold.</span>
+<span class="cmt"># Human review required for: any adversarial category change.</span></div>
+        </div>
+
+        <p>Khattab et al. (2023) formalise this further in DSPy, which frames the entire prompt engineering pipeline as a compilation problem: prompts are not written by hand but optimised automatically against a metric, with the eval suite serving as the objective function the compiler is maximising.<sup><a href="#r7" class="ref">[7]</a></sup> Even if you do not adopt DSPy's full automated optimisation approach, the core insight is correct: the eval suite is the specification, and prompt iteration is the search procedure. That framing makes the value of a rigorous eval dataset obvious — it is not test overhead, it is the target you are aiming at.</p>
+
+        <h3>The prompt diff problem</h3>
+        <p>One subtlety unique to prompt versioning: small wording changes can produce large and non-obvious output changes. Adding "be concise" to a system prompt may improve average output length but degrade faithfulness because the model omits qualifications. Removing "You are an expert in…" may slightly reduce confidence calibration in a way that takes fifty evaluations to detect statistically.</p>
+
+        <p>The implication is that prompt changes should be reviewed with the same scrutiny as code changes that touch critical paths — and the eval diff is the code review tool. A change that shows clean scores in aggregate but moves the distribution of individual scores (more 3s and 5s, fewer 4s) is not a neutral change; it is a change in reliability that the aggregate hides. Track score variance, not just mean score.</p>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── §8 THE SHIP DECISION ─── -->
+      <section class="section reveal" id="ship-decision">
+        <h2>8. The ship decision</h2>
+
+        <p>The ship decision is a judgment call, not a calculation — but it should be a judgment call informed by evidence. The eval infrastructure built in this lesson exists to produce that evidence. What follows is a practical framework for translating eval scores into a defensible shipping decision.</p>
+
+        <div class="anatomy">
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Required</span></div>
+            <div class="anatomy-content">Hard blockers that must pass before shipping. Typically: no regression on adversarial and safety-critical eval categories, faithfulness score above a minimum threshold on all input types, structured output format compliance at 100% on the golden set.
+<span class="cmt">→ These are non-negotiable. A system that fails a hard blocker does not ship.</span></div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Target</span></div>
+            <div class="anatomy-content">The quality bar you are aiming for on primary metrics (faithfulness, answer relevance, aggregate judge score). This is defined before the first eval run, not after — setting targets retrospectively is confirmation bias by another name.
+<span class="cmt">→ If the system meets the target, it is a ship. If not, the gap is the work.</span></div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Known gaps</span></div>
+            <div class="anatomy-content">Input categories or edge cases where the system underperforms the target but is not a hard blocker. These are acknowledged, logged, and prioritised for the next iteration.
+<span class="cmt">→ Every system ships with known gaps. The question is whether the gaps are acceptable for the use case.</span></div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-label"><span>Monitoring</span></div>
+            <div class="anatomy-content">A plan for what you will measure in production: which outputs will be sampled, who will review them, and what triggers a rollback. Shipping without a monitoring plan means you are ending your visibility at the point where visibility matters most.
+<span class="cmt">→ Eval in staging and eval in production are both necessary. Neither replaces the other.</span></div>
+          </div>
+        </div>
+
+        <p>The most common shipping error is not shipping too early — it is shipping without having defined what "ready" means. A team that has not set a target score before the first eval run will always find a reason the current score is acceptable. A team with a pre-defined target has a clear, objective, repeatable criterion that cannot be adjusted after the results are in.</p>
+
+        <p>A second common error is treating the initial ship as the end of the eval process. Production is where the real input distribution lives. The queries that real users submit will contain patterns, phrasings, and intent varieties that your golden set did not anticipate. The eval infrastructure built before launch is the baseline; the production monitoring system is what tells you whether that baseline holds. They are one continuous process, not two separate phases.</p>
+
+        <div class="callout">
+          <p class="callout-label">Closing the loop — across the full series</p>
+          <p class="callout-p">Lesson 01 established that a prompt shapes a probability distribution. Every lesson since has been about methods for moving that distribution toward the region of useful, accurate outputs. Evaluation is how you measure whether you succeeded — not on the examples you designed for, but on the full distribution of inputs your system will actually encounter. Without it, every claim about quality is a prior, not a posterior. Evaluation closes the loop. It is where prompt engineering becomes a discipline rather than a craft.</p>
+        </div>
+      </section>
+
+      <hr class="rule">
+
+      <!-- ─── REFERENCES ─── -->
+      <section class="section reveal" id="refs">
+        <h2>References</h2>
+
+        <ol class="ref-list">
+          <li class="ref-item" id="r1">
+            <span class="ref-num">[1]</span>
+            <span>Shankar, S., et al. (2024). <em>Who Validates the Validators? Aligning LLM-Assisted Evaluation of LLM Outputs with Human Preferences</em>. Documents systematic evaluation failures in LLM teams, including overconfidence bias and regression blindness in teams without structured eval pipelines. <a href="https://arxiv.org/abs/2404.12272" target="_blank" rel="noopener noreferrer">arXiv:2404.12272</a></span>
+          </li>
+          <li class="ref-item" id="r2">
+            <span class="ref-num">[2]</span>
+            <span>Lin, C.-Y. (2004). <em>ROUGE: A Package for Automatic Evaluation of Summaries</em>. Introduces the ROUGE family of n-gram overlap metrics; remains the standard for summarisation evaluation. <em>Proceedings of the ACL Workshop on Text Summarization Branches Out</em>. <a href="https://aclanthology.org/W04-1013/" target="_blank" rel="noopener noreferrer">aclanthology.org/W04-1013</a></span>
+          </li>
+          <li class="ref-item" id="r3">
+            <span class="ref-num">[3]</span>
+            <span>Zhang, T., et al. (2019). <em>BERTScore: Evaluating Text Generation with BERT</em>. Uses contextual BERT embeddings to compute semantic similarity between generated and reference text; more robust to paraphrase than n-gram methods. ICLR 2020. <a href="https://arxiv.org/abs/1904.09675" target="_blank" rel="noopener noreferrer">arXiv:1904.09675</a></span>
+          </li>
+          <li class="ref-item" id="r4">
+            <span class="ref-num">[4]</span>
+            <span>Zheng, L., et al. (2023). <em>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</em>. Establishes LLM-as-judge as a scalable evaluation methodology, reporting >80% agreement between GPT-4 judges and human expert annotators. NeurIPS 2023. <a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener noreferrer">arXiv:2306.05685</a></span>
+          </li>
+          <li class="ref-item" id="r5">
+            <span class="ref-num">[5]</span>
+            <span>Shen, T., et al. (2023). <em>Large Language Models are Not Yet Human-Level Evaluators for Abstractive Summarization</em>. Systematically catalogues verbosity bias, positional bias, and self-enhancement bias in LLM judge prompts; provides mitigation strategies. <a href="https://arxiv.org/abs/2305.13091" target="_blank" rel="noopener noreferrer">arXiv:2305.13091</a></span>
+          </li>
+          <li class="ref-item" id="r6">
+            <span class="ref-num">[6]</span>
+            <span>Es, S., et al. (2023). <em>RAGAS: Automated Evaluation of Retrieval Augmented Generation</em>. Introduces the four-metric RAGAS framework — context recall, context precision, faithfulness, and answer relevance — for component-level RAG evaluation without requiring ground-truth references. <a href="https://arxiv.org/abs/2309.15217" target="_blank" rel="noopener noreferrer">arXiv:2309.15217</a></span>
+          </li>
+          <li class="ref-item" id="r7">
+            <span class="ref-num">[7]</span>
+            <span>Khattab, O., et al. (2023). <em>DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines</em>. Frames prompt engineering as a compilation problem with eval metrics as the objective function; introduces automated prompt optimisation against a labelled eval set. <a href="https://arxiv.org/abs/2310.03714" target="_blank" rel="noopener noreferrer">arXiv:2310.03714</a></span>
+          </li>
+          <li class="ref-item" id="r8">
+            <span class="ref-num">[8]</span>
+            <span>Guo, Q., et al. (2023). <em>Evaluating Large Language Models: A Comprehensive Survey</em>. Broad taxonomy of LLM evaluation dimensions including capability, alignment, and safety; covers automated and human evaluation methodologies across task types. <a href="https://arxiv.org/abs/2310.19736" target="_blank" rel="noopener noreferrer">arXiv:2310.19736</a></span>
+          </li>
+          <li class="ref-item" id="r9">
+            <span class="ref-num">[9]</span>
+            <span>Anthropic. (2025). <em>Evals — Building Evaluations for Claude</em>. Anthropic's own documentation on constructing eval pipelines for Claude-based systems: eval dataset design, automated scoring, and the recommended sequence of eval types before deployment. <a href="https://docs.anthropic.com/en/docs/build-with-claude/evals" target="_blank" rel="noopener noreferrer">docs.anthropic.com/en/docs/build-with-claude/evals</a></span>
+          </li>
+        </ol>
+      </section>
+
+    </article>
+  </div>
+
+  <!-- ─── LESSON NAVIGATION ─── -->
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a class="lesson-nav-card" href="prompt-engineering-05.html">
+      <svg class="lesson-nav-arrow left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      <div>
+        <p class="lesson-nav-label">Previous lesson</p>
+        <p class="lesson-nav-title">RAG and context injection</p>
+      </div>
+    </a>
+    <a class="lesson-nav-card disabled" href="#" aria-disabled="true">
+      <div>
+        <p class="lesson-nav-label">Series complete</p>
+        <p class="lesson-nav-title">You've reached the end</p>
+      </div>
+      <svg class="lesson-nav-arrow right" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+  </nav>
+
+  <hr class="divider">
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="site-footer" role="contentinfo">
+    <div>
+      <div class="footer-brand">Hedi Manai</div>
+      <div class="footer-sub">Let's build AI agents together.</div>
+    </div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a class="footer-link" href="index.html#home">Home</a>
+      <a class="footer-link" href="index.html#latest-notes">Writing</a>
+      <a class="footer-link" href="index.html#prompt-templates">Templates</a>
+      <a class="footer-link" href="index.html#contact">Contact</a>
+    </nav>
+    <div class="footer-note">9 verified sources · No fluff</div>
+  </footer>
+
+  <script>
+    /* ─────────────────────────────────────────────
+       READING PROGRESS
+    ───────────────────────────────────────────── */
+    const pf = document.getElementById('pf');
+    window.addEventListener('scroll', () => {
+      const d = document.documentElement;
+      const h = d.scrollHeight - d.clientHeight;
+      pf.style.width = (h > 0 ? (d.scrollTop / h) * 100 : 0) + '%';
+    }, { passive: true });
+
+    /* ─────────────────────────────────────────────
+       TOC SCROLL SPY
+       Observes both .section[id] and h3[id] so
+       sub-links activate correctly.
+    ───────────────────────────────────────────── */
+    const allTocLinks = document.querySelectorAll('.toc-link');
+    const sections = document.querySelectorAll('.section[id], h3[id]');
+
+    const spy = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const links = document.querySelectorAll(`.toc-link[href="#${e.target.id}"]`);
+        if (e.isIntersecting) {
+          allTocLinks.forEach(l => l.classList.remove('active'));
+          links.forEach(l => l.classList.add('active'));
+        }
+      });
+    }, { rootMargin: '-52px 0px -55% 0px', threshold: 0 });
+
+    sections.forEach(s => spy.observe(s));
+
+    /* ─────────────────────────────────────────────
+       SCROLL REVEAL
+    ───────────────────────────────────────────── */
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); revObs.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+    /* ─────────────────────────────────────────────
+       DARK MODE
+    ───────────────────────────────────────────── */
+    let isDark = false;
+    const sunPaths = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    const moonPath = '<path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>';
+
+    function toggleTheme() {
+      isDark = !isDark;
+      document.documentElement.classList.toggle('dark', isDark);
+      document.getElementById('themeIcon').innerHTML = isDark ? moonPath : sunPaths;
+    }
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+      if (e.key === 'd' || e.key === 'D') toggleTheme();
+    });
+  </script>
+</body>
+</html>
