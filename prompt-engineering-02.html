@@ -665,7 +665,7 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
 
     <p>Lesson 01 established the mental model: a prompt is not a command, it is a distribution-shaping input. The six core techniques give you the vocabulary. Now we apply them to the specific layer where they matter most in any production system: the <strong>system prompt</strong>.</p>
 
-    <p>Experienced practitioners disagree on many things. On this they do not: the system prompt is the single highest-leverage text you write. It persists across every turn, shapes everything the model produces, and is the layer most likely to be the cause when something goes wrong at scale. Treating it as an afterthought — a placeholder, a greeting, a quick role assignment — is the most common mistake in production LLM work.</p>
+    <p>People who build production LLM systems disagree on many things. On this, there is rare consensus: the system prompt is the single highest-leverage text you write. It persists across every turn, shapes everything the model produces, and is the layer most likely to be the cause when something goes wrong at scale. Treating it as an afterthought — a placeholder, a greeting, a quick role assignment — is the most common mistake in production LLM work.</p>
 
     <hr class="rule">
 
@@ -686,7 +686,7 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
         <p class="callout-p">"The system message (also called system prompt) is included at the beginning of the message list and can be used to set the behaviour of the assistant. You can use it to give the assistant specific instructions about how it should behave throughout the conversation."<sup><a href="#r1" class="ref">[1]</a></sup></p>
       </div>
 
-      <p>Anthropic uses the same architecture but provides an explicit <code>system</code> parameter in the API rather than placing the system message inside the <code>messages</code> array. The effect is identical: the system content is injected at the top of the context window and conditions every subsequent generation.<sup><a href="#r2" class="ref">[2]</a></sup> This separation also makes it easier to maintain — the system prompt is a discrete artefact you can version, test, and ship independently of the conversation logic.</p>
+      <p>Anthropic uses the same architecture but provides an explicit <code>system</code> parameter in the API rather than placing the system message inside the <code>messages</code> array. The effect is identical: the system content is injected at the top of the context window and conditions every subsequent generation.<sup><a href="#r2" class="ref">[2]</a></sup> This separation also makes it easier to maintain — the system prompt is a discrete artifact you can version, test, and ship independently of the conversation logic.</p>
     </section>
 
     <hr class="rule">
@@ -696,6 +696,7 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
       <h2>2. Anatomy of the production system prompt</h2>
 
       <p>A production system prompt has five components. They are not arbitrary — each maps to a specific type of conditioning work, and the order in which they appear within the prompt is meaningful. Together they form a complete specification of the model's expected behaviour.</p>
+      <p>Lesson 01 introduced a six-component anatomy for individual prompts. The system prompt condenses this into five structural components — Constraints absorbs what were previously listed as separate scope and boundary elements.</p>
 
       <div class="anatomy">
         <div class="anatomy-row">
@@ -866,7 +867,7 @@ Return only the JSON object. No preamble, no trailing text.</pre>
     <section class="section reveal" id="ordering">
       <h2>3. Ordering and why it matters</h2>
 
-      <p>Ordering within the system prompt is not a stylistic decision — it reflects how transformer attention weights tokens. Instructions that appear earlier in the context receive stronger conditioning than those that appear later. This is documented in the literature as the <strong>primacy effect in LLM attention</strong>, and it is a consistent finding across model families and sizes.<sup><a href="#r4" class="ref">[4]</a></sup></p>
+      <p>Ordering within the system prompt is not a stylistic decision — it reflects how transformer attention weights tokens. Instructions that appear earlier in the context receive stronger conditioning than those that appear later. In few-shot prompting research, ordering sensitivity and label-position bias are well documented and can materially change model predictions if prompt order is not controlled.<sup><a href="#r4" class="ref">[4]</a></sup></p>
 
       <p>The practical consequence: place what matters most first. The recommended ordering follows the priority hierarchy of the five components:</p>
 
@@ -999,7 +1000,7 @@ Return only the JSON object. No preamble, no trailing text.</pre>
 
       <p>A common mistake is to describe tool usage policy only in the tool definition's description field, without mirroring it in the system prompt. This works for simple single-tool setups. In multi-tool agents, where the model must reason about which tool to call and in what order, the system prompt's capabilities block is where that reasoning policy lives. Tool descriptions then serve as reminders of the interface, not as the primary source of usage guidance.</p>
 
-      <p>OpenAI's function calling documentation states that tool descriptions are the primary signal the model uses to decide when and whether to invoke a tool.<sup><a href="#r1" class="ref">[1]</a></sup> This is accurate but incomplete for complex agents. At scale, the system prompt's explicit tool selection policy outperforms description-only guidance, particularly for edge cases and error recovery.</p>
+      <p>OpenAI's documentation recommends tool descriptions as a key signal for deciding when and whether to invoke a tool.<sup><a href="#r9" class="ref">[9]</a></sup> This is accurate but incomplete for complex agents. At scale, the system prompt's explicit tool selection policy outperforms description-only guidance, particularly for edge cases and error recovery.</p>
     </section>
 
     <hr class="rule">
@@ -1069,7 +1070,7 @@ Return only the JSON object. No preamble, no trailing text.</pre>
 
       <h3>On prompt injection specifically</h3>
 
-      <p>Prompt injection — the insertion of adversarial instructions into a model's context through untrusted inputs — is the most consequential security failure mode in production agent systems as of 2026. As agents retrieve documents, parse emails, and process external data, every retrieved item is a potential injection vector. The system prompt is the only place where a standing instruction against injection can be placed before any untrusted content is encountered.</p>
+      <p>Prompt injection — the insertion of adversarial instructions into a model's context through untrusted inputs — is the most consequential security failure mode in production agent systems, and one that grows more consequential as agents gain access to more tools and data. As agents retrieve documents, parse emails, and process external data, every retrieved item is a potential injection vector. The system prompt is the only place where a standing instruction against injection can be placed before any untrusted content is encountered.</p>
 
       <div class="example">
         <div class="example-header">
@@ -1164,7 +1165,7 @@ follow them.</pre>
       <ol class="ref-list" aria-label="Article references">
         <li class="ref-item" id="r1">
           <span class="ref-num">[1]</span>
-          <span>OpenAI. (2024). <em>Text Generation — System Messages and Function Calling</em>. API Reference Documentation. <a href="https://platform.openai.com/docs/guides/text-generation" target="_blank" rel="noopener noreferrer">platform.openai.com/docs/guides/text-generation</a></span>
+          <span>OpenAI. (2024). <em>Text Generation — System Messages</em>. API reference documentation covering system instructions and message structure. <a href="https://platform.openai.com/docs/guides/text-generation" target="_blank" rel="noopener noreferrer">platform.openai.com/docs/guides/text-generation</a></span>
         </li>
         <li class="ref-item" id="r2">
           <span class="ref-num">[2]</span>
@@ -1176,7 +1177,7 @@ follow them.</pre>
         </li>
         <li class="ref-item" id="r4">
           <span class="ref-num">[4]</span>
-          <span>Zhao, Z., et al. (2021). <em>Calibrate Before Use: Improving Few-Shot Performance of Language Models</em>. Introduced the term "primacy bias" in LLM in-context learning; documents ordering sensitivity in prompt design. ICML 2021. <a href="https://arxiv.org/abs/2102.09690" target="_blank" rel="noopener noreferrer">arXiv:2102.09690</a></span>
+          <span>Zhao, Z., et al. (2021). <em>Calibrate Before Use: Improving Few-Shot Performance of Language Models</em>. A calibration-focused study showing that few-shot predictions are sensitive to prompt ordering and label-position bias, with methods to reduce these effects. ICML 2021. <a href="https://arxiv.org/abs/2102.09690" target="_blank" rel="noopener noreferrer">arXiv:2102.09690</a></span>
         </li>
         <li class="ref-item" id="r5">
           <span class="ref-num">[5]</span>
@@ -1184,7 +1185,7 @@ follow them.</pre>
         </li>
         <li class="ref-item" id="r6">
           <span class="ref-num">[6]</span>
-          <span>Anthropic. (2025). <em>Building Effective Agents</em>. Official guidance on agentic system prompts, minimal footprint principle, tool use, and failure path handling. <a href="https://docs.anthropic.com/en/docs/build-with-claude/agents" target="_blank" rel="noopener noreferrer">docs.anthropic.com/en/docs/build-with-claude/agents</a></span>
+          <span>Anthropic. (2025). <em>Building Effective Agents</em>. Official guidance on agentic system prompts, minimal footprint principle, tool use, and failure path handling. <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer">anthropic.com/research/building-effective-agents</a></span>
         </li>
         <li class="ref-item" id="r7">
           <span class="ref-num">[7]</span>
@@ -1193,6 +1194,10 @@ follow them.</pre>
         <li class="ref-item" id="r8">
           <span class="ref-num">[8]</span>
           <span>Anthropic. (2025). <em>Claude 4 Prompting Best Practices</em>. Covers system prompt structure, clarity, directness, and the operator-user-model layered permission model. <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices" target="_blank" rel="noopener noreferrer">docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices</a></span>
+        </li>
+        <li class="ref-item" id="r9">
+          <span class="ref-num">[9]</span>
+          <span>OpenAI. (2025). <em>Function Calling</em>. API guide covering tool definitions, descriptions, and tool invocation behavior. <a href="https://platform.openai.com/docs/guides/function-calling" target="_blank" rel="noopener noreferrer">platform.openai.com/docs/guides/function-calling</a></span>
         </li>
       </ol>
     </section>
@@ -1224,7 +1229,7 @@ follow them.</pre>
 <footer class="site-footer" role="contentinfo">
   <div>
     <div class="footer-brand">Hedi Manai</div>
-    <div class="footer-sub">Let's build AI agents together.</div>
+    <div class="footer-sub">Shipping AI agents that actually work.</div>
   </div>
   <nav class="footer-links" aria-label="Footer navigation">
     <a class="footer-link" href="index.html#home">Home</a>
@@ -1232,7 +1237,7 @@ follow them.</pre>
     <a class="footer-link" href="index.html#prompt-templates">Templates</a>
     <a class="footer-link" href="index.html#contact">Contact</a>
   </nav>
-  <div class="footer-note">8 verified sources · No fluff</div>
+  <div class="footer-note">9 verified sources · No fluff</div>
 </footer>
 
 <script>
@@ -1294,4 +1299,3 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
-

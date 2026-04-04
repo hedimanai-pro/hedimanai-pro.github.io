@@ -1540,8 +1540,8 @@
 
         <p>Wei et al. (2022) introduced chain-of-thought prompting in a paper that remains one of the most cited in the
           field.<sup><a href="#r1" class="ref">[1]</a></sup> They showed that prompting models to produce intermediate
-          reasoning steps before a final answer improved performance on arithmetic, commonsense, and symbolic reasoning
-          benchmarks by <strong>40–70%</strong> on models of sufficient scale.</p>
+          reasoning steps before a final answer improved performance on those benchmarks by a large margin — often 40%
+          or more — on models of sufficient scale.</p>
 
         <p>Two aspects of this finding are frequently misunderstood and worth stating precisely.</p>
 
@@ -1567,11 +1567,10 @@
             state-of-the-art models."<sup><a href="#r1" class="ref">[1]</a></sup></p>
         </div>
 
-        <p>The paper also introduced the zero-shot chain-of-thought formulation via few-shot examples with reasoning
-          traces — each example showed the model both the question and an annotated step-by-step solution. Kojima et al.
-          (2022) subsequently demonstrated that the simpler zero-shot variant — appending "Let's think step by step" to
-          a prompt — was sufficient to elicit most of the benefit without requiring annotated examples.<sup><a
-              href="#r2" class="ref">[2]</a></sup></p>
+        <p>The paper introduced few-shot CoT — each example showed both the question and an annotated step-by-step
+          solution. Kojima et al. (2022) subsequently demonstrated that the simpler zero-shot variant — appending
+          "Let's think step by step" to a prompt — was sufficient to elicit most of the benefit without requiring
+          annotated examples.<sup><a href="#r2" class="ref">[2]</a></sup></p>
       </section>
 
       <hr class="rule">
@@ -1946,8 +1945,9 @@ No factor exists between 1 and √17 ≈ 4.12. Therefore 17 is prime. ✓</pre>
       <section class="section reveal" id="reasoning-models">
         <h2>6. Reasoning models change the equation</h2>
 
-        <p>The release of OpenAI's o1 in September 2024, followed by o3 and Anthropic's Claude 3.7 Sonnet with extended
-          thinking in early 2025, introduced a new model category that makes one critical change to the CoT picture:
+        <p>The release of OpenAI's o1 in September 2024, followed by o3, o4-mini, and Anthropic's Claude Sonnet 4.6 /
+          Opus 4.6 with extended thinking, introduced a new model category that makes one critical change to the CoT
+          picture:
           <strong>the reasoning chain is generated internally, before the model's visible output begins</strong>.
         </p>
 
@@ -1962,7 +1962,7 @@ No factor exists between 1 and √17 ≈ 4.12. Therefore 17 is prime. ✓</pre>
               <tr>
                 <th>Dimension</th>
                 <th>Standard model + CoT prompt</th>
-                <th>Reasoning model (o1/o3/extended thinking)</th>
+                <th>Reasoning model (o-series, Claude Sonnet 4.6 / Opus 4.6 with extended thinking)</th>
               </tr>
             </thead>
             <tbody>
@@ -2000,18 +2000,19 @@ No factor exists between 1 and √17 ≈ 4.12. Therefore 17 is prime. ✓</pre>
           </table>
         </div>
 
-        <p>Anthropic's documentation for Claude 3.7 Sonnet explicitly notes that prompting for explicit step-by-step
-          reasoning in the user turn is unnecessary and may produce worse results than allowing the model's extended
-          thinking to run uninterrupted.<sup><a href="#r11" class="ref">[11]</a></sup> OpenAI's guidance for o1 and o3
-          models makes the same recommendation: avoid CoT-style instructions in the prompt; focus on clear task
-          specification.</p>
+        <p>Anthropic's documentation for Claude Sonnet 4.6 / Opus 4.6 explicitly notes that prompting for explicit
+          step-by-step reasoning in the user turn is unnecessary and may produce worse results than allowing the model's
+          extended thinking to run uninterrupted.<sup><a href="#r11" class="ref">[11]</a></sup> OpenAI's guidance for
+          o1, o3, and o4-mini models makes the same recommendation: avoid CoT-style instructions in the prompt; focus
+          on clear task specification.</p>
 
         <div class="callout">
           <p class="callout-label">The 2026 rule of thumb</p>
-          <p class="callout-p">On standard models (GPT-4o, Claude Sonnet 4.6, Gemini 1.5 Pro), CoT prompting is still
-            valuable and should be used for multi-step reasoning tasks. On reasoning models (o1, o3, Claude 3.7 extended
-            thinking), CoT in the user turn is unnecessary — invest that attention in tightening your Role, Constraints,
-            and Format specification instead.</p>
+          <p class="callout-p">When reasoning/extended thinking is disabled (GPT-4o in standard mode, Claude Sonnet 4.6
+            in standard mode, Gemini 2.0 Flash), CoT prompting is still valuable and should be used for multi-step
+            reasoning tasks. When reasoning/extended thinking is enabled (o1, o3, o4-mini, Claude Sonnet 4.6 or Opus
+            4.6 with extended thinking), CoT in the user turn is unnecessary — invest that attention in tightening your
+            Role, Constraints, and Format specification instead.</p>
         </div>
 
         <p>Self-consistency's value also diminishes on reasoning models, because the internal search already explores
@@ -2047,11 +2048,11 @@ No factor exists between 1 and √17 ≈ 4.12. Therefore 17 is prime. ✓</pre>
           Reserve CoT for batch processing or pre-generation pipelines where latency is not the constraint.</p>
 
         <h3 id="reasoning-model-cot">Reasoning models (as established above)</h3>
-        <p>Prompting o1, o3, or Claude extended thinking to "think step by step" in the user turn interferes with the
-          model's internal process. This is the single most common mistake practitioners make when migrating from
-          standard to reasoning models. The visible output will look more verbose, but the quality is often lower
-          because the user-turn CoT instruction competes with — rather than augments — the model's internal reasoning.
-        </p>
+        <p>Prompting o1, o3, o4-mini, or Claude Sonnet 4.6 / Opus 4.6 with extended thinking to "think step by step" in
+          the user turn interferes with the model's internal process. This is the single most common mistake
+          practitioners make when migrating from standard to reasoning models. The visible output will look more
+          verbose, but the quality is often lower because the user-turn CoT instruction competes with — rather than
+          augments — the model's internal reasoning.</p>
       </section>
 
       <hr class="rule">
@@ -2118,7 +2119,7 @@ No factor exists between 1 and √17 ≈ 4.12. Therefore 17 is prime. ✓</pre>
               </tr>
               <tr>
                 <td>Any reasoning task</td>
-                <td>Reasoning model</td>
+                <td>o-series, Claude 4.6 with extended thinking</td>
                 <td>Any</td>
                 <td>No CoT trigger — focus on Role, Constraints, Format</td>
               </tr>
@@ -2222,8 +2223,8 @@ No factor exists between 1 and √17 ≈ 4.12. Therefore 17 is prime. ✓</pre>
             <span class="ref-num">[11]</span>
             <span>Anthropic. (2025). <em>Extended Thinking — Claude API Documentation</em>. Covers the extended thinking
               parameter, thinking budgets, and guidance on prompt design for reasoning models. <a
-                href="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking" target="_blank"
-                rel="noopener noreferrer">docs.anthropic.com/en/docs/build-with-claude/extended-thinking</a></span>
+                href="https://platform.claude.com/docs/en/build-with-claude/extended-thinking" target="_blank"
+                rel="noopener noreferrer">platform.claude.com/docs/en/build-with-claude/extended-thinking</a></span>
           </li>
         </ol>
       </section>
@@ -2263,7 +2264,7 @@ No factor exists between 1 and √17 ≈ 4.12. Therefore 17 is prime. ✓</pre>
   <footer class="site-footer" role="contentinfo">
     <div>
       <div class="footer-brand">Hedi Manai</div>
-      <div class="footer-sub">Let's build AI agents together.</div>
+      <div class="footer-sub">Shipping AI agents that actually work.</div>
     </div>
     <nav class="footer-links" aria-label="Footer navigation">
       <a class="footer-link" href="index.html#home">Home</a>

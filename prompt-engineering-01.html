@@ -615,7 +615,7 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
       What Is Prompt Engineering?<br>
       <em>A First Principles Introduction</em>
     </h1>
-    <p class="hero-lead">Not tips and tricks — the real mental model. How prompts shape a model's output at the token level, why the field is evolving faster than most practitioners realise, and the six techniques every serious practitioner must master.</p>
+    <p class="hero-lead">Not tips and tricks — the real mental model. How prompts shape a model's output at the token level, why the field is evolving faster than most people in the field realise — and the six techniques that separate reliable results from lucky guesses.</p>
   </div>
 </header>
 
@@ -701,9 +701,9 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
 
       <p>The practical case is simple. The same model — identical weights, identical API — can produce outputs ranging from useless to extraordinary depending on how it is prompted. Brown et al. (2020), introducing GPT-3 and the concept of in-context learning, showed that the framing of an input has as large an impact on performance as model scale across a wide range of tasks.<sup><a href="#r2" class="ref">[2]</a></sup> That finding has been replicated and extended in hundreds of subsequent studies.</p>
 
-      <p>The economic case is equally clear. Fine-tuning a frontier model — adjusting its weights on task-specific data — is expensive, slow, and risks "catastrophic forgetting" (the model loses general capabilities while gaining task-specific ones). Prompt engineering achieves comparable gains on most tasks in hours, not weeks, at near-zero marginal cost per iteration. Anthropic's own documentation notes that many teams reach for fine-tuning before fully exploring what prompt engineering can achieve — a sequencing mistake that costs both time and money.<sup><a href="#r3" class="ref">[3]</a></sup></p>
+      <p>The economic case is equally clear. Fine-tuning a frontier model — adjusting its weights on task-specific data — is expensive, slow, and can risk "catastrophic forgetting" — performance loss on general tasks — particularly with full fine-tuning on small datasets. Prompt engineering achieves comparable gains on most tasks in hours, not weeks, at near-zero marginal cost per iteration. Anthropic's own documentation notes that many teams reach for fine-tuning before fully exploring what prompt engineering can achieve — a sequencing mistake that costs both time and money.<sup><a href="#r3" class="ref">[3]</a></sup></p>
 
-      <p>By 2025, prompt engineering has also become a production engineering discipline. Real-time AI features, customer-facing agents, automated classification pipelines — all of them depend on prompts that behave predictably across a distribution of inputs, not just on a handpicked example. The scale of the discipline is reflected in the job market: over 15,500 prompt engineering roles were listed on Indeed in late 2025.<sup><a href="#r4" class="ref">[4]</a></sup></p>
+      <p>By 2025, prompt engineering has also become a production engineering discipline. Real-time AI features, customer-facing agents, automated classification pipelines — all of them depend on prompts that behave predictably across a distribution of inputs, not just on a handpicked example. Prompt engineering has entered the mainstream job market, with dedicated roles appearing across every major hiring platform.</p>
     </section>
 
     <hr class="rule">
@@ -746,6 +746,8 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
 <span class="cmt">e.g. "Return a JSON object with keys: summary (string), risk_flags (array of strings), max_length (150 words)."</span></div>
         </div>
       </div>
+
+      <p>Schulhoff et al. define five core components; Constraints is added here as a sixth, reflecting production-grade requirements not always covered in academic taxonomies.</p>
 
       <p>For a simple, one-off task, Directive + Context may be sufficient. For a production pipeline where the output is parsed by another system, all six components are typically necessary. The most common failure mode in production prompts is omitting the output format — leaving the model to choose a structure, which it will do differently on every run.</p>
 
@@ -860,7 +862,7 @@ Then output your final classification: Positive / Neutral / Negative.
 was damaged, but the product itself works exactly as described."</pre>
       </div>
 
-      <p>An important 2025 caveat: on <em>reasoning models</em> — OpenAI o1/o3 and Claude 3.7 Sonnet with extended thinking — the model generates an internal chain-of-thought automatically before producing output. Prompting for explicit step-by-step reasoning on these models is redundant and may interfere with the model's internal process. For these models, focus your energy on the Role and Constraint layers.</p>
+      <p>An important 2026 caveat: on <em>reasoning models</em> — OpenAI o-series models and Claude Sonnet 4.6 / Opus 4.6 with extended thinking — the model generates an internal chain-of-thought automatically before producing output. Prompting for explicit step-by-step reasoning on these models is redundant and may interfere with the model's internal process. For these models, focus your energy on the Role and Constraint layers.</p>
 
       <!-- Role -->
       <h3 id="role">Role and persona prompting</h3>
@@ -997,7 +999,7 @@ for a non-legal VP of Sales. Jargon-free. Action-oriented.</pre>
       <p>The practical upshot for a practitioner in 2026: prompt engineering is the foundation. Context engineering is the next layer, relevant when you build agents or multi-turn systems. You cannot context-engineer without first understanding how to prompt-engineer. This series covers both — prompt engineering first, context engineering in a later lesson.</p>
 
       <div class="callout">
-        <p class="callout-label">From CIO magazine, Oct 2025</p>
+        <p class="callout-label">From CIO Magazine, Oct 2025</p>
         <p class="callout-p">"Prompts set intent; context supplies situational awareness. In real enterprise apps, the ROI comes from engineering the information, memory, and tools that enter the model's tiny attention budget — every single step." — Adnan Masood, Chief AI Architect, UST.<sup><a href="#r4" class="ref">[4]</a></sup></p>
       </div>
     </section>
@@ -1021,7 +1023,6 @@ for a non-legal VP of Sales. Jargon-free. Action-oriented.</pre>
       <p>This approach can be partially automated. Zhou et al. (2022) demonstrated that a language model can be used to generate and evaluate prompt candidates, selecting those that maximise performance on a held-out set — their Automatic Prompt Engineer (APE) system outperformed human-written prompts on several benchmarks.<sup><a href="#r7" class="ref">[7]</a></sup> The automated approach confirms the same principle: evaluation on a set, not a single example, is the only signal that matters.</p>
 
       <div class="callout">
-        <p class="callout-label">Anthropic's framing</p>
         <p class="callout-p">"Think of Claude as an intern on their first day of the job: provide clear, explicit instructions with all the necessary detail. Keep in mind that prompt engineering is a science, and you should approach it like a scientist: test your prompts and iterate often."<sup><a href="#r3" class="ref">[3]</a></sup></p>
       </div>
 
@@ -1102,7 +1103,7 @@ for a non-legal VP of Sales. Jargon-free. Action-oriented.</pre>
 <footer class="site-footer" role="contentinfo">
   <div>
     <div class="footer-brand">Hedi Manai</div>
-    <div class="footer-sub">Let's build AI agents together.</div>
+    <div class="footer-sub">Shipping AI agents that actually work.</div>
   </div>
   <nav class="footer-links" aria-label="Footer navigation">
     <a class="footer-link" href="index.html#home">Home</a>
@@ -1176,4 +1177,3 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
-

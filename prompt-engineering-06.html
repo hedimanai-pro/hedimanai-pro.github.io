@@ -737,7 +737,9 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
           <p class="callout-p">In traditional software, correctness is a property of an individual execution. In LLM systems, correctness is a property of the output distribution. A prompt that produces excellent output on 80% of inputs and catastrophically wrong output on 20% is not a good prompt — it is a latent incident. Evaluation exists to measure the full distribution, not just the examples you happened to check.</p>
         </div>
 
-        <p>Shankar et al. (2024) document this precisely in their study of LLM evaluation practices across engineering teams: teams without structured eval pipelines consistently overestimate their system's quality, misattribute failures to the wrong components, and regress on previously working capabilities when iterating on prompts without regression tests.<sup><a href="#r1" class="ref">[1]</a></sup> The eval infrastructure is not a luxury that comes after the product is working. It is the instrument that tells you whether the product is working in the first place.</p>
+        <p>Shankar et al. (2024) demonstrate one dimension of this in their study of how teams calibrate LLM-assisted evaluation against human preferences — showing systematic divergence when judge pipelines are not aligned.<sup><a href="#r1" class="ref">[1]</a></sup> The eval infrastructure is not a luxury that comes after the product is working. It is the instrument that tells you whether the product is working in the first place.</p>
+
+        <p>In practice, teams without structured eval pipelines often overestimate system quality, misattribute failures to the wrong components, and regress on previously working capabilities when iterating on prompts without regression tests. These are recurring practitioner failure patterns to design against.</p>
 
         <p>A secondary reason evaluation is neglected: it requires making the quality bar explicit. Saying "the output should be helpful and accurate" is not a specification — it is a wish. Writing an eval forces you to operationalise quality: accurate with respect to what ground truth, helpful by what scoring rubric, evaluated against which input distribution. That exercise, uncomfortable as it is, surfaces disagreements about what the system is actually supposed to do before those disagreements surface in production.</p>
       </section>
@@ -861,7 +863,7 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
         <h3 id="llm-judge">LLM-as-judge</h3>
         <p>The most expressive and increasingly dominant approach: use a second language model — typically a stronger model than the one being evaluated — as an automated judge. The judge model reads the input, the system output, and optionally a reference answer, and scores the output according to a rubric you define in the judge prompt.</p>
 
-        <p>Zheng et al. (2023) formalise this in the MT-Bench evaluation framework, demonstrating that GPT-4 as a judge achieves over 80% agreement with human expert evaluators — comparable to the agreement rate between two independent human annotators — across a range of open-ended generation tasks.<sup><a href="#r4" class="ref">[4]</a></sup> This finding has held across subsequent studies and has established LLM-as-judge as the practical standard for evaluating generated text at scale.</p>
+        <p>Zheng et al. (2023) formalise this in the MT-Bench evaluation framework, demonstrating that GPT-4 as a judge achieves over 80% agreement with human expert evaluators on open-ended instruction-following tasks — comparable to the agreement rate between two independent human annotators — across a range of open-ended generation tasks.<sup><a href="#r4" class="ref">[4]</a></sup> This finding has held across subsequent studies and has established LLM-as-judge as the practical standard for evaluating generated text at scale.</p>
 
         <div class="data-table-wrap">
           <table class="data-table">
@@ -915,7 +917,7 @@ html.dark .example-header .badge.bad  { border-color: #4a2020; background: #2e1a
       <section class="section reveal" id="judge-design">
         <h2>5. Designing the judge prompt</h2>
 
-        <p>An LLM judge is only as good as its judge prompt. A vague judge prompt produces noisy, inconsistent scores that add variance without adding signal. The design principles below are derived from the MT-Bench methodology and from the practical findings of Shen et al. (2023), who systematically catalogued the biases that uncalibrated judge prompts introduce.<sup><a href="#r5" class="ref">[5]</a></sup></p>
+        <p>An LLM judge is only as good as its judge prompt. A vague judge prompt produces noisy, inconsistent scores that add variance without adding signal. The design principles below are derived from the MT-Bench methodology and from the practical findings of Shen et al. (2023), who found LLM evaluators inconsistent and dimension-dependent in their evaluation of abstractive summarisation — an early warning that uncalibrated judge pipelines produce unreliable signals.<sup><a href="#r5" class="ref">[5]</a></sup></p>
 
         <p><strong>Use a point score with explicit criteria, not a relative comparison.</strong> Asking the judge to pick the better of two outputs introduces position bias — the judge systematically favours the output presented first. Absolute scoring against a rubric produces more consistent results and is easier to interpret.</p>
 
@@ -954,7 +956,7 @@ Passages: <span class="ph">[retrieved context]</span>
 Response: <span class="ph">[model output to evaluate]</span></div>
         </div>
 
-        <p>Three known biases to test for and mitigate in your judge prompt. <strong>Verbosity bias</strong>: judges tend to score longer responses higher regardless of content quality — counteract by explicitly penalising unnecessary length in the rubric. <strong>Self-enhancement bias</strong>: a model used as its own judge scores its own outputs higher than an independent judge would — use a different model family as the judge. <strong>Format bias</strong>: responses with markdown formatting, headers, and lists are scored higher than plain prose of equal quality — control for this by stripping or normalising output formatting before evaluation.</p>
+        <p>Three known biases to test for and mitigate in your judge prompt. <strong>Verbosity bias</strong>: judges tend to score longer responses higher regardless of content quality — counteract by explicitly penalising unnecessary length in the rubric. <strong>Self-enhancement bias</strong>: a model used as its own judge scores its own outputs higher than an independent judge would — use a different model family as the judge. <strong>Format bias</strong>: responses with markdown formatting, headers, and lists are scored higher than plain prose of equal quality — control for this by stripping or normalising output formatting before evaluation. The specific bias types — verbosity, self-enhancement, and format bias — are widely documented across LLM evaluation research, including in the MT-Bench study above.</p>
 
         <p>Calibrate your judge against human annotations before trusting it at scale. If your judge and your human raters disagree on more than 25% of examples, the judge prompt needs revision — not a stronger model, but a better rubric. Model capability is rarely the bottleneck in judge quality; rubric precision almost always is.</p>
       </section>
@@ -967,7 +969,7 @@ Response: <span class="ph">[model output to evaluate]</span></div>
 
         <p>A RAG pipeline has two components that must be evaluated independently: the retrieval system and the generation system. Evaluating only the final output — "did the answer come out right?" — makes it impossible to localise failures. A wrong answer could mean the right chunks were retrieved but the model ignored them, or the wrong chunks were retrieved and the model faithfully reproduced them. The fix is different in each case.</p>
 
-        <p>Es et al. (2023) introduce the RAGAS framework — Retrieval-Augmented Generation Assessment — as a reference-free evaluation methodology that decomposes RAG quality into four independent metrics, each targeting a specific failure mode.<sup><a href="#r6" class="ref">[6]</a></sup></p>
+        <p>Es et al. (2023) introduce the RAGAS framework — Retrieval-Augmented Generation Assessment — as a largely reference-free evaluation methodology — context recall requires a gold-standard answer, while the other three metrics do not — that decomposes RAG quality into four independent metrics, each targeting a specific failure mode.<sup><a href="#r6" class="ref">[6]</a></sup></p>
 
         <h3 id="retrieval-metrics">Retrieval metrics</h3>
 
@@ -1029,7 +1031,7 @@ Response: <span class="ph">[model output to evaluate]</span></div>
       <section class="section reveal" id="regression">
         <h2>7. Regression testing and CI</h2>
 
-        <p>A prompt is a software artefact. It should be version-controlled, reviewed, and tested before deployment — the same way any other code change is. The reason most teams do not do this is that the tooling for prompt versioning has historically been poor and the feedback loop for prompt changes has been informal. Both of those conditions have improved substantially. There is no longer a good excuse for deploying prompt changes without running a regression suite first.</p>
+        <p>A prompt is a software artifact. It should be version-controlled, reviewed, and tested before deployment — the same way any other code change is. The reason most teams do not do this is that the tooling for prompt versioning has historically been poor and the feedback loop for prompt changes has been informal. Both of those conditions have improved substantially. There is no longer a good excuse for deploying prompt changes without running a regression suite first.</p>
 
         <p>The core requirement is simple: when any prompt in the system changes, run the full eval suite against that prompt and surface a diff of the score changes. A change that improves aggregate performance while regressing on a specific input category is only visible if you have the category labels and the historical baseline to compare against. Without that infrastructure, regressions propagate silently into production.</p>
 
@@ -1112,7 +1114,7 @@ Response: <span class="ph">[model output to evaluate]</span></div>
         <ol class="ref-list">
           <li class="ref-item" id="r1">
             <span class="ref-num">[1]</span>
-            <span>Shankar, S., et al. (2024). <em>Who Validates the Validators? Aligning LLM-Assisted Evaluation of LLM Outputs with Human Preferences</em>. Documents systematic evaluation failures in LLM teams, including overconfidence bias and regression blindness in teams without structured eval pipelines. <a href="https://arxiv.org/abs/2404.12272" target="_blank" rel="noopener noreferrer">arXiv:2404.12272</a></span>
+            <span>Shankar, S., et al. (2024). <em>Who Validates the Validators? Aligning LLM-Assisted Evaluation of LLM Outputs with Human Preferences</em>. Studies calibration of LLM-assisted evaluation against human preferences and reports systematic divergence when judge pipelines are insufficiently aligned. <a href="https://arxiv.org/abs/2404.12272" target="_blank" rel="noopener noreferrer">arXiv:2404.12272</a></span>
           </li>
           <li class="ref-item" id="r2">
             <span class="ref-num">[2]</span>
@@ -1128,7 +1130,7 @@ Response: <span class="ph">[model output to evaluate]</span></div>
           </li>
           <li class="ref-item" id="r5">
             <span class="ref-num">[5]</span>
-            <span>Shen, T., et al. (2023). <em>Large Language Models are Not Yet Human-Level Evaluators for Abstractive Summarization</em>. Systematically catalogues verbosity bias, positional bias, and self-enhancement bias in LLM judge prompts; provides mitigation strategies. <a href="https://arxiv.org/abs/2305.13091" target="_blank" rel="noopener noreferrer">arXiv:2305.13091</a></span>
+            <span>Shen, T., et al. (2023). <em>Large Language Models are Not Yet Human-Level Evaluators for Abstractive Summarization</em>. Finds LLM evaluators inconsistent and dimension-dependent in abstractive summarisation evaluation, highlighting reliability limits for uncalibrated judge setups. <a href="https://arxiv.org/abs/2305.13091" target="_blank" rel="noopener noreferrer">arXiv:2305.13091</a></span>
           </li>
           <li class="ref-item" id="r6">
             <span class="ref-num">[6]</span>
@@ -1144,7 +1146,7 @@ Response: <span class="ph">[model output to evaluate]</span></div>
           </li>
           <li class="ref-item" id="r9">
             <span class="ref-num">[9]</span>
-            <span>Anthropic. (2025). <em>Evals — Building Evaluations for Claude</em>. Anthropic's own documentation on constructing eval pipelines for Claude-based systems: eval dataset design, automated scoring, and the recommended sequence of eval types before deployment. <a href="https://docs.anthropic.com/en/docs/build-with-claude/evals" target="_blank" rel="noopener noreferrer">docs.anthropic.com/en/docs/build-with-claude/evals</a></span>
+            <span>Anthropic. (2025). <em>Define success criteria and build evaluations</em>. Anthropic's documentation on constructing eval pipelines for Claude-based systems: evaluation criteria, dataset design, and test development workflows before deployment. <a href="https://platform.claude.com/docs/en/test-and-evaluate/develop-tests" target="_blank" rel="noopener noreferrer">platform.claude.com/docs/en/test-and-evaluate/develop-tests</a></span>
           </li>
         </ol>
       </section>
@@ -1164,7 +1166,7 @@ Response: <span class="ph">[model output to evaluate]</span></div>
         <p class="lesson-nav-title">RAG and context injection</p>
       </div>
     </a>
-    <a class="lesson-nav-card disabled" href="#" aria-disabled="true">
+    <a class="lesson-nav-card" href="https://hedimanai-pro.github.io/index.html#latest-notes">
       <div>
         <p class="lesson-nav-label">Series complete</p>
         <p class="lesson-nav-title">You've reached the end</p>
@@ -1182,7 +1184,7 @@ Response: <span class="ph">[model output to evaluate]</span></div>
   <footer class="site-footer" role="contentinfo">
     <div>
       <div class="footer-brand">Hedi Manai</div>
-      <div class="footer-sub">Let's build AI agents together.</div>
+      <div class="footer-sub">Shipping AI agents that actually work.</div>
     </div>
     <nav class="footer-links" aria-label="Footer navigation">
       <a class="footer-link" href="index.html#home">Home</a>

@@ -1452,10 +1452,10 @@
 
                 <p>The standard response is fine-tuning: adjust the model's weights on your domain data so the
                     information becomes part of its parametric memory. This is often the wrong choice. Fine-tuning is
-                    expensive, slow, and introduces its own failure modes — notably catastrophic forgetting, where the
-                    model loses general capability as it gains domain specificity. More importantly, it conflates two
-                    very different problems: teaching the model <em>how</em> to behave versus giving it <em>what</em> to
-                    know.</p>
+                    expensive, slow, and introduces its own failure modes — notably the risk of catastrophic forgetting
+                    — performance loss on general tasks — particularly with full fine-tuning on small or narrow
+                    datasets. More importantly, it conflates two very different problems: teaching the model
+                    <em>how</em> to behave versus giving it <em>what</em> to know.</p>
 
                 <div class="callout">
                     <p class="callout-label">The core distinction</p>
@@ -1574,6 +1574,10 @@
                     </div>
                 </div>
 
+                <p>Note: 512 tokens suits most embedding models from 2022–2024. Newer models supporting 8k+ token
+                    inputs may benefit from larger chunk sizes — consult your embedding model's documentation for its
+                    optimal input length.</p>
+
                 <p>The overlap parameter is frequently omitted in early implementations and then added after the first
                     failure: a query that matches a sentence split perfectly across two chunks, with neither chunk
                     returning enough context for a correct answer.</p>
@@ -1659,7 +1663,7 @@
 
                 <p>For similarity search at scale, exact nearest-neighbour search across millions of vectors is
                     computationally prohibitive. Approximate nearest-neighbour (ANN) algorithms — the most widely used
-                    being FAISS (Facebook AI Similarity Search) — partition the vector space using structures like HNSW
+                    being FAISS (Meta AI Similarity Search) — partition the vector space using structures like HNSW
                     (Hierarchical Navigable Small World graphs) or IVF (Inverted File Index), enabling sub-linear search
                     at the cost of a small recall trade-off.<sup><a href="#r4" class="ref">[4]</a></sup></p>
 
@@ -1674,8 +1678,8 @@
 
                 <p>Hybrid search combines both signals. In practice: run semantic search and BM25 in parallel, then fuse
                     the result sets using Reciprocal Rank Fusion (RRF) or a learned linear combination. Anthropic's own
-                    guidance on contextual retrieval found that hybrid search — with contextual chunk enrichment —
-                    reduced retrieval failure rates by over 67% compared to naive semantic-only retrieval.<sup><a
+                    guidance on contextual retrieval found that contextual chunk enrichment alone reduced retrieval
+                    failures by 49%, and when combined with hybrid search and reranking, by 67%.<sup><a
                             href="#r6" class="ref">[6]</a></sup></p>
 
                 <p>Add a cross-encoder reranker as the final step. Cross-encoders score query–chunk pairs jointly
@@ -1775,6 +1779,10 @@
                         <span class="ph">[user query]</span>
                     </div>
                 </div>
+
+                <p>The relevance label shown here is derived from the retriever's similarity score — high, medium, or
+                    low based on thresholds you define. It is not automatically generated; your orchestration layer
+                    must map the float score to a label and insert it into the template.</p>
 
                 <div class="example">
                     <div class="example-header">
@@ -2015,8 +2023,9 @@
                         <div class="anatomy-label"><span>Skip RAG</span></div>
                         <div class="anatomy-content">The information is stable, well-represented in the model's training
                             data, and general in nature. The query requires reasoning, not retrieval. The document
-                            corpus is fewer than ~50 documents — just include them in the system prompt directly. You
-                            need the model to behave differently, not know more.
+                            corpus is fewer than ~200,000 tokens total — include them in the system prompt directly
+                            using prompt caching to reduce cost. You need the model to behave differently, not know
+                            more.
                             <span class="cmt">→ Fine-tuning, system prompt inclusion, or base model prompting may be
                                 sufficient.</span>
                         </div>
@@ -2167,7 +2176,7 @@
     <footer class="site-footer" role="contentinfo">
         <div>
             <div class="footer-brand">Hedi Manai</div>
-            <div class="footer-sub">Let's build AI agents together.</div>
+            <div class="footer-sub">Shipping AI agents that actually work.</div>
         </div>
         <nav class="footer-links" aria-label="Footer navigation">
             <a class="footer-link" href="index.html#home">Home</a>
