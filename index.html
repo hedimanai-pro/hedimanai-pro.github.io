@@ -137,6 +137,21 @@
             <li><a href="prompt-engineering-06.html">Evaluation and Testing</a></li>
           </ul>
         </noscript>
+        <div class="lesson-search" role="search" aria-label="Search lessons">
+          <svg class="lesson-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="20" y1="20" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="search"
+            id="lessonSearch"
+            class="lesson-search-input"
+            placeholder="Search lessons..."
+            aria-label="Search lessons"
+            aria-controls="carouselTrack"
+            autocomplete="off">
+        </div>
+        <p class="lesson-search-meta" id="lessonSearchMeta">6 lessons</p>
         <div class="carousel-track" id="carouselTrack"></div>
         <div class="carousel-nav">
           <div class="carousel-dots" id="carouselDots"></div>
@@ -360,9 +375,12 @@
     const dots = document.getElementById('carouselDots');
     const btnPrev = document.getElementById('carrPrev');
     const btnNext = document.getElementById('carrNext');
+    const searchInput = document.getElementById('lessonSearch');
+    const searchMeta = document.getElementById('lessonSearchMeta');
 
     let page = 0;
     let perPage = 3; // updated by ResizeObserver before first paint
+    let filteredNotes = notes.slice();
 
     function colsForWidth(w) {
       if (w < 480) return 1;
@@ -370,8 +388,20 @@
       return 3;
     }
 
+    function updateFilteredNotes() {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) {
+        filteredNotes = notes.slice();
+        return;
+      }
+
+      filteredNotes = notes.filter(n =>
+        `${n.title} ${n.topic} ${n.excerpt}`.toLowerCase().includes(q)
+      );
+    }
+
     function totalPages() {
-      return Math.ceil(notes.length / perPage);
+      return Math.max(1, Math.ceil(filteredNotes.length / perPage));
     }
 
     function renderCarousel() {
@@ -379,11 +409,26 @@
       if (page >= tp) page = tp - 1;
       if (page < 0) page = 0;
 
+      const count = filteredNotes.length;
+      searchMeta.textContent = count === 1 ? '1 lesson' : `${count} lessons`;
+
       // set CSS grid columns via custom property on the element
-      track.style.setProperty('--cols', perPage);
+      track.style.setProperty('--cols', count > 0 ? perPage : 1);
+
+      if (count === 0) {
+        track.innerHTML = `
+      <div class="ccard-empty">
+        <p class="ccard-empty-title">No lessons found</p>
+        <p class="ccard-empty-copy">Try another keyword like "prompt", "RAG", or "evaluation".</p>
+      </div>`;
+        dots.innerHTML = '';
+        btnPrev.disabled = true;
+        btnNext.disabled = true;
+        return;
+      }
 
       // cards
-      track.innerHTML = notes
+      track.innerHTML = filteredNotes
         .slice(page * perPage, page * perPage + perPage)
         .map(n => `
       <a class="ccard" href="${n.href}">
@@ -414,10 +459,16 @@
 
     btnPrev.addEventListener('click', () => { if (page > 0) { page--; renderCarousel(); } });
     btnNext.addEventListener('click', () => { if (page < totalPages() - 1) { page++; renderCarousel(); } });
+    searchInput.addEventListener('input', () => {
+      page = 0;
+      updateFilteredNotes();
+      renderCarousel();
+    });
 
     // ResizeObserver fires after layout — gives true rendered width.
     // Wrapped in requestAnimationFrame to defer DOM mutations to the next
     // paint cycle, preventing "ResizeObserver loop" feedback errors.
+    updateFilteredNotes();
     let rafRO;
     new ResizeObserver(entries => {
       cancelAnimationFrame(rafRO);

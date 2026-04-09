@@ -362,6 +362,53 @@ html.dark #home::after {
   margin-bottom: 3rem;
 }
 
+/* Lesson search */
+.lesson-search {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 44px;
+  padding: 0 0.85rem;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: var(--sh-sm);
+}
+
+.lesson-search:focus-within {
+  border-color: var(--border-h);
+  box-shadow: var(--sh-md);
+}
+
+.lesson-search-icon {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.lesson-search-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-s);
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.lesson-search-input::placeholder {
+  color: var(--muted);
+  opacity: 0.9;
+}
+
+.lesson-search-meta {
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
 /* Carousel */
 .carousel-track {
   display: grid;
@@ -386,6 +433,27 @@ html.dark #home::after {
 
 .ccard:hover {
   background: var(--surface2);
+}
+
+.ccard-empty {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  padding: 1.5rem;
+}
+
+.ccard-empty-title {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-s);
+  margin-bottom: 0.4rem;
+}
+
+.ccard-empty-copy {
+  font-size: 0.68rem;
+  line-height: 1.75;
+  color: var(--muted);
 }
 
 .ccard-meta {
