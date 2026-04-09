@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Evaluating & Testing AI Systems — Prompt Engineering Series — Hedi Manai</title>
-  <meta name="description" content="The discipline that turns prompt engineering into real engineering. How to build eval datasets, pick the right metrics, design LLM-as-judge pipelines, measure RAG quality with RAGAS, automate regression tests in CI, and decide when your system is ready to ship. Lesson 06 of 06.">
+  <meta name="description" content="Build eval datasets, design LLM-as-judge pipelines, and run regression tests in CI — so you know when your AI system is ready to ship. Lesson 06 of 06.">
   <meta name="keywords" content="LLM evaluation, prompt testing, LLM-as-judge, RAGAS, eval dataset, regression testing CI, BERTScore, ROUGE, faithfulness metric, answer relevance, context recall, AI system testing, prompt engineering evaluation, Hedi Manai">
   <meta name="author" content="Hedi Manai">
   <meta name="robots" content="index, follow">
@@ -17,7 +17,7 @@
   <meta property="og:url" content="https://hedimanai-pro.github.io/prompt-engineering-06.html">
   <meta property="og:site_name" content="Hedi Manai">
   <meta property="article:author" content="Hedi Manai">
-  <meta property="article:published_time" content="2026-03-01">
+  <meta property="article:published_time" content="2026-04-09">
   <meta property="article:section" content="Prompt Engineering">
   <meta property="article:tag" content="LLM evaluation, prompt testing, LLM-as-judge, RAGAS, CI pipeline, eval dataset">
   <meta name="twitter:card" content="summary">
@@ -30,6 +30,38 @@
 
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/article.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Evaluating & Testing AI Systems",
+    "description": "Build eval datasets, design LLM-as-judge pipelines, and run regression tests in CI — so you know when your AI system is ready to ship. Lesson 06 of 06.",
+    "url": "https://hedimanai-pro.github.io/prompt-engineering-06.html",
+    "datePublished": "2026-04-09",
+    "dateModified": "2026-04-09",
+    "author": {
+      "@type": "Person",
+      "name": "Hedi Manai",
+      "@id": "https://hedimanai-pro.github.io/#person"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Hedi Manai",
+      "url": "https://hedimanai-pro.github.io/"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://hedimanai-pro.github.io/prompt-engineering-06.html"
+    },
+    "isPartOf": {
+      "@type": "Blog",
+      "name": "Prompt Engineering Series",
+      "url": "https://hedimanai-pro.github.io/"
+    },
+    "position": 6,
+    "articleSection": "Prompt Engineering"
+  }
+  </script>
 </head>
 
 <body>
@@ -101,7 +133,7 @@
         <span class="meta-pill num">Lesson 06</span>
         <span class="meta-pill">Prompt Engineering</span>
         <span class="meta-dot" aria-hidden="true"></span>
-        <span class="meta-item">Mar 2026</span>
+        <span class="meta-item">Apr 2026</span>
         <span class="meta-dot" aria-hidden="true"></span>
         <span class="meta-item">28 min read</span>
       </div>
