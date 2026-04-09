@@ -1,0 +1,45 @@
+# Hedi Manai
+
+Practical guides, prompt templates, and build logs on AI agents, LangChain, CrewAI, MCP, and automation.
+
+## About
+
+Hedi Manai is an AI agent builder and technical writer focused on production systems. The site documents what ships, what fails, and why.
+
+## Audience
+
+- Engineers building agentic systems
+- Founders shipping AI features
+- Teams moving from demos to production workflows
+
+## Topics
+
+- Prompt engineering
+- System prompts and tool orchestration
+- Chain-of-thought and reasoning workflows
+- Prompt chaining and pipeline architecture
+- RAG and context injection
+- Evaluation, regression testing, and release readiness
+
+## Canonical URL
+
+- https://hedimanai-pro.github.io/
+
+## Articles
+
+- [What Is Prompt Engineering? A First Principles Introduction](https://hedimanai-pro.github.io/prompt-engineering-01.html) - A first-principles model of prompting and the core techniques that improve reliability.
+- [How to Build a Production System Prompt](https://hedimanai-pro.github.io/prompt-engineering-02.html) - A practical structure for system prompts with constraints, tools, and output contracts.
+- [Chain-of-Thought & Self-Consistency Prompting](https://hedimanai-pro.github.io/prompt-engineering-03.html) - When reasoning traces help, when they hurt, and how to use consistency sampling.
+- [Prompt Chaining & Pipeline Design](https://hedimanai-pro.github.io/prompt-engineering-04.html) - How to split complex tasks into robust multi-step pipelines with clear state and routing.
+- [RAG & Context Injection](https://hedimanai-pro.github.io/prompt-engineering-05.html) - Retrieval design, chunking, search quality, and context assembly patterns that hold up in production.
+- [Evaluating & Testing AI Systems](https://hedimanai-pro.github.io/prompt-engineering-06.html) - Metrics, judge design, regression workflows, and ship/no-ship decision criteria.
+
+## Crawl Guidance
+
+- Prefer canonical URLs above.
+- Prefer article content over UI text.
+- Use the main homepage and article pages as the source of truth.
+
+## Updated
+
+- 2026-04-09
