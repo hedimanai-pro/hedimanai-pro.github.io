@@ -268,9 +268,7 @@
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
-    /* ─────────────────────────────────────────────
-           NOTES DATA
-        ───────────────────────────────────────────── */
+    // # Notes Data
     const notes = [
       {
         date: 'Mar 2026',
@@ -316,13 +314,11 @@
       }
     ];
 
-    /* ─────────────────────────────────────────────
-       CAROUSEL
-       Uses ResizeObserver on the track element so
-       column count reacts to the track's actual
-       rendered width — not window.innerWidth, which
-       is wider than the constrained layout.
-    ───────────────────────────────────────────── */
+    // # Carousel
+    // Uses ResizeObserver on the track element so
+    // column count reacts to the track's actual
+    // rendered width - not window.innerWidth, which
+    // is wider than the constrained layout.
     const track = document.getElementById('carouselTrack');
     const dots = document.getElementById('carouselDots');
     const btnPrev = document.getElementById('carrPrev');
