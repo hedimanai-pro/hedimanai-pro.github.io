@@ -7,39 +7,40 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://hedimanai-pro.github.io/prompt-engineering-01.html</loc>
+    <loc>https://hedimanai-pro.github.io/lessons/what-is-prompt-engineering.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hedimanai-pro.github.io/prompt-engineering-02.html</loc>
+    <loc>https://hedimanai-pro.github.io/lessons/building-the-production-system-prompt.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hedimanai-pro.github.io/prompt-engineering-03.html</loc>
+    <loc>https://hedimanai-pro.github.io/lessons/chain-of-thought-and-self-consistency.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hedimanai-pro.github.io/prompt-engineering-04.html</loc>
+    <loc>https://hedimanai-pro.github.io/lessons/prompt-chaining-and-pipeline-design.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hedimanai-pro.github.io/prompt-engineering-05.html</loc>
+    <loc>https://hedimanai-pro.github.io/lessons/rag-and-context-injection.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hedimanai-pro.github.io/prompt-engineering-06.html</loc>
+    <loc>https://hedimanai-pro.github.io/lessons/evaluation-and-testing.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>
+

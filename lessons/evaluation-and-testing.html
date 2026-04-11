@@ -14,7 +14,7 @@
   <meta property="og:type" content="article">
   <meta property="og:title" content="Evaluating & Testing AI Systems — Prompt Engineering Series">
   <meta property="og:description" content="The discipline that turns prompt engineering into engineering. Eval datasets, metrics, LLM-as-judge, RAGAS, CI regression pipelines — and the ship/no-ship decision framework. Lesson 06 of 06.">
-  <meta property="og:url" content="https://hedimanai-pro.github.io/prompt-engineering-06.html">
+  <meta property="og:url" content="https://hedimanai-pro.github.io/lessons/evaluation-and-testing.html">
   <meta property="og:site_name" content="Hedi Manai">
   <meta property="og:image" content="https://hedimanai-pro.github.io/assets/images/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -27,23 +27,23 @@
   <meta name="twitter:title" content="Evaluating & Testing AI Systems — Prompt Engineering Series">
   <meta name="twitter:description" content="Eval datasets, LLM-as-judge, RAGAS, regression testing, and the framework for deciding when your AI system is actually ready to ship. Final lesson.">
   <meta name="twitter:image" content="https://hedimanai-pro.github.io/assets/images/og-image.png">
-  <link rel="canonical" href="https://hedimanai-pro.github.io/prompt-engineering-06.html">
-  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="canonical" href="https://hedimanai-pro.github.io/lessons/evaluation-and-testing.html">
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Geist+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/base.css">
-  <link rel="stylesheet" href="assets/css/article.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/article.css">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": "Evaluating & Testing AI Systems",
     "description": "Build eval datasets, design LLM-as-judge pipelines, and run regression tests in CI — so you know when your AI system is ready to ship. Lesson 06 of 06.",
-    "url": "https://hedimanai-pro.github.io/prompt-engineering-06.html",
+    "url": "https://hedimanai-pro.github.io/lessons/evaluation-and-testing.html",
     "datePublished": "2026-04-09",
     "dateModified": "2026-04-09",
     "author": {
@@ -58,7 +58,7 @@
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://hedimanai-pro.github.io/prompt-engineering-06.html"
+      "@id": "https://hedimanai-pro.github.io/lessons/evaluation-and-testing.html"
     },
     "isPartOf": {
       "@type": "Blog",
@@ -80,12 +80,12 @@
 
   <!-- # NAV -->
   <nav class="nav" aria-label="Primary navigation" role="navigation">
-    <a class="nav-brand" href="index.html">Hedi Manai</a>
+    <a class="nav-brand" href="../index.html">Hedi Manai</a>
     <div class="nav-links">
-      <a class="nav-link" href="index.html#home">Home</a>
-      <a class="nav-link active" href="index.html#latest-notes">Writing</a>
-      <a class="nav-link" href="index.html#prompt-templates">Templates</a>
-      <a class="nav-link" href="index.html#contact">Contact</a>
+      <a class="nav-link" href="../index.html#home">Home</a>
+      <a class="nav-link active" href="../index.html#latest-notes">Writing</a>
+      <a class="nav-link" href="../index.html#prompt-templates">Templates</a>
+      <a class="nav-link" href="../index.html#contact">Contact</a>
     </div>
     <div class="nav-spacer"></div>
     <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme (D)">
@@ -115,7 +115,7 @@
       Prompt Engineering Series &nbsp;·&nbsp; <span>Lesson 06 of 06</span>
     </div>
     <nav class="series-nav" aria-label="Series navigation">
-      <a class="series-btn" href="prompt-engineering-05.html">
+      <a class="series-btn" href="rag-and-context-injection.html">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round">
           <polyline points="15 18 9 12 15 6" />
@@ -128,7 +128,7 @@
   <!-- # Hero -->
   <header class="hero">
     <div class="hero-inner">
-      <a class="crumb" href="index.html#latest-notes">
+      <a class="crumb" href="../index.html#latest-notes">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
           stroke-linecap="round">
           <polyline points="15 18 9 12 15 6" />
@@ -890,7 +890,7 @@
 
   <!-- # Lesson Navigation -->
   <nav class="lesson-nav" aria-label="Lesson navigation">
-    <a class="lesson-nav-card" href="prompt-engineering-05.html">
+    <a class="lesson-nav-card" href="rag-and-context-injection.html">
       <svg class="lesson-nav-arrow left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round">
         <line x1="19" y1="12" x2="5" y2="12" />
@@ -923,16 +923,16 @@
       <div class="footer-sub">Shipping AI agents that actually work.</div>
     </div>
     <nav class="footer-links" aria-label="Footer navigation">
-      <a class="footer-link" href="index.html#home">Home</a>
-      <a class="footer-link" href="index.html#latest-notes">Writing</a>
-      <a class="footer-link" href="index.html#prompt-templates">Templates</a>
-      <a class="footer-link" href="index.html#contact">Contact</a>
+      <a class="footer-link" href="../index.html#home">Home</a>
+      <a class="footer-link" href="../index.html#latest-notes">Writing</a>
+      <a class="footer-link" href="../index.html#prompt-templates">Templates</a>
+      <a class="footer-link" href="../index.html#contact">Contact</a>
     </nav>
     <div class="footer-note">9 verified sources · No fluff</div>
   </footer>
 
-  <script src="assets/js/main.js"></script>
-  <script src="assets/js/article.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/article.js"></script>
 </body>
 
 </html>

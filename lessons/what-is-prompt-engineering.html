@@ -14,7 +14,7 @@
   <meta property="og:type" content="article">
   <meta property="og:title" content="What Is Prompt Engineering? A First Principles Introduction">
   <meta property="og:description" content="Not tips and tricks — the real mental model. How prompts shape a model's output at the token level, and the 6 core techniques that matter in production. Lesson 01 of 06.">
-  <meta property="og:url" content="https://hedimanai-pro.github.io/prompt-engineering-01.html">
+  <meta property="og:url" content="https://hedimanai-pro.github.io/lessons/what-is-prompt-engineering.html">
   <meta property="og:site_name" content="Hedi Manai">
   <meta property="og:image" content="https://hedimanai-pro.github.io/assets/images/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -27,23 +27,23 @@
   <meta name="twitter:title" content="What Is Prompt Engineering? A First Principles Introduction">
   <meta name="twitter:description" content="Not tips and tricks — the real mental model. How prompts work at the token level, and the 6 techniques that separate reliable results from lucky guesses.">
   <meta name="twitter:image" content="https://hedimanai-pro.github.io/assets/images/og-image.png">
-  <link rel="canonical" href="https://hedimanai-pro.github.io/prompt-engineering-01.html">
-  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="canonical" href="https://hedimanai-pro.github.io/lessons/what-is-prompt-engineering.html">
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Geist+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/base.css">
-  <link rel="stylesheet" href="assets/css/article.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/article.css">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": "What Is Prompt Engineering? A First Principles Introduction",
     "description": "Not tips and tricks — the real mental model behind prompt engineering. How prompts shape a model's token distribution, why the field is evolving fast in 2026, and the 6 techniques that separate reliable results from lucky guesses.",
-    "url": "https://hedimanai-pro.github.io/prompt-engineering-01.html",
+    "url": "https://hedimanai-pro.github.io/lessons/what-is-prompt-engineering.html",
     "datePublished": "2026-04-09",
     "dateModified": "2026-04-09",
     "author": {
@@ -58,7 +58,7 @@
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://hedimanai-pro.github.io/prompt-engineering-01.html"
+      "@id": "https://hedimanai-pro.github.io/lessons/what-is-prompt-engineering.html"
     },
     "isPartOf": {
       "@type": "Blog",
@@ -80,12 +80,12 @@
 
   <!-- # NAV -->
   <nav class="nav" aria-label="Primary navigation" role="navigation">
-    <a class="nav-brand" href="index.html">Hedi Manai</a>
+    <a class="nav-brand" href="../index.html">Hedi Manai</a>
     <div class="nav-links">
-      <a class="nav-link" href="index.html#home">Home</a>
-      <a class="nav-link active" href="index.html#latest-notes">Writing</a>
-      <a class="nav-link" href="index.html#prompt-templates">Templates</a>
-      <a class="nav-link" href="index.html#contact">Contact</a>
+      <a class="nav-link" href="../index.html#home">Home</a>
+      <a class="nav-link active" href="../index.html#latest-notes">Writing</a>
+      <a class="nav-link" href="../index.html#prompt-templates">Templates</a>
+      <a class="nav-link" href="../index.html#contact">Contact</a>
     </div>
     <div class="nav-spacer"></div>
     <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme (D)">
@@ -122,7 +122,7 @@
         </svg>
         Prev
       </a>
-      <a class="series-btn" href="prompt-engineering-02.html">
+      <a class="series-btn" href="building-the-production-system-prompt.html">
         Next
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round">
@@ -135,7 +135,7 @@
   <!-- # Hero -->
   <header class="hero">
     <div class="hero-inner">
-      <a class="crumb" href="index.html#latest-notes">
+      <a class="crumb" href="../index.html#latest-notes">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
           stroke-linecap="round">
           <polyline points="15 18 9 12 15 6" />
@@ -813,7 +813,7 @@ for a non-legal VP of Sales. Jargon-free. Action-oriented.</pre>
         <p class="lesson-nav-title">—</p>
       </div>
     </a>
-    <a class="lesson-nav-card" href="prompt-engineering-02.html">
+    <a class="lesson-nav-card" href="building-the-production-system-prompt.html">
       <div>
         <p class="lesson-nav-label">Next lesson</p>
         <p class="lesson-nav-title">Building the production system prompt</p>
@@ -835,16 +835,16 @@ for a non-legal VP of Sales. Jargon-free. Action-oriented.</pre>
       <div class="footer-sub">Shipping AI agents that actually work.</div>
     </div>
     <nav class="footer-links" aria-label="Footer navigation">
-      <a class="footer-link" href="index.html#home">Home</a>
-      <a class="footer-link" href="index.html#latest-notes">Writing</a>
-      <a class="footer-link" href="index.html#prompt-templates">Templates</a>
-      <a class="footer-link" href="index.html#contact">Contact</a>
+      <a class="footer-link" href="../index.html#home">Home</a>
+      <a class="footer-link" href="../index.html#latest-notes">Writing</a>
+      <a class="footer-link" href="../index.html#prompt-templates">Templates</a>
+      <a class="footer-link" href="../index.html#contact">Contact</a>
     </nav>
     <div class="footer-note">9 verified sources · No fluff</div>
   </footer>
 
-  <script src="assets/js/main.js"></script>
-  <script src="assets/js/article.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/article.js"></script>
 </body>
 
 </html>

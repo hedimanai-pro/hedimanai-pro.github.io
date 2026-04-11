@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Lessons — Hedi Manai</title>
+  <meta name="description" content="Browse every lesson published by Hedi Manai — prompt engineering, RAG pipelines, AI agents, and more. A growing library of honest, field-tested guides.">
+  <meta name="keywords" content="prompt engineering lessons, AI lessons, RAG pipeline guide, chain-of-thought, system prompt, LLM evaluation, Hedi Manai">
+  <meta name="author" content="Hedi Manai">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#f6f5f1">
+  <meta http-equiv="Content-Language" content="en">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="All Lessons — Hedi Manai">
+  <meta property="og:description" content="Browse every lesson published by Hedi Manai — prompt engineering, RAG pipelines, AI agents, and more.">
+  <meta property="og:url" content="https://hedimanai-pro.github.io/lessons/">
+  <meta property="og:site_name" content="Hedi Manai">
+  <meta property="og:image" content="https://hedimanai-pro.github.io/assets/images/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="All Lessons — Hedi Manai">
+  <meta name="twitter:description" content="Browse every lesson published by Hedi Manai — prompt engineering, RAG pipelines, AI agents, and more.">
+  <meta name="twitter:image" content="https://hedimanai-pro.github.io/assets/images/og-image.png">
+  <link rel="canonical" href="https://hedimanai-pro.github.io/lessons/">
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Geist+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/lessons.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "All Lessons — Hedi Manai",
+    "description": "Browse every lesson published by Hedi Manai — prompt engineering, RAG pipelines, AI agents, and more.",
+    "url": "https://hedimanai-pro.github.io/lessons/",
+    "author": {
+      "@type": "Person",
+      "name": "Hedi Manai",
+      "url": "https://hedimanai-pro.github.io/"
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" aria-label="Primary navigation" role="navigation">
+    <a class="nav-brand" href="../index.html">Hedi Manai</a>
+    <div class="nav-links">
+      <a class="nav-link" href="../index.html#home">Home</a>
+      <a class="nav-link active" href="../index.html#latest-notes">Writing</a>
+      <a class="nav-link" href="../index.html#prompt-templates">Templates</a>
+      <a class="nav-link" href="../index.html#contact">Contact</a>
+    </div>
+    <div class="nav-spacer"></div>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+      <svg id="themeIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <header class="lessons-hero">
+    <div class="lessons-hero-inner">
+      <a class="crumb" href="../index.html#latest-notes">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to home
+      </a>
+      <h1 class="lessons-hero-title">All Lessons<br><em>& Field Notes.</em></h1>
+      <p class="lessons-hero-sub">Every guide published so far — from prompt engineering fundamentals to production
+        pipelines. More coming.</p>
+    </div>
+  </header>
+
+  <hr class="divider">
+
+  <!-- LESSONS -->
+  <main>
+    <div class="lessons-wrap">
+
+      <!-- Search & filter -->
+      <div class="lessons-toolbar reveal">
+        <div class="lessons-search" role="search" aria-label="Search lessons">
+          <svg class="lessons-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="20" y1="20" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="search" id="lessonsSearch" class="lessons-search-input" placeholder="Search lessons..."
+            aria-label="Search lessons" autocomplete="off">
+        </div>
+        <p class="lessons-count" id="lessonsCount"></p>
+      </div>
+
+      <!-- Series: Prompt Engineering -->
+      <section class="lessons-series reveal" data-series="prompt-engineering">
+        <div class="series-header">
+          <div class="series-header-left">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+            </svg>
+            <div>
+              <h2 class="series-header-title">Prompt Engineering Series</h2>
+              <p class="series-header-meta">6 lessons · Apr 2026</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lessons-grid" id="lessonsGrid">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- Empty state -->
+      <div class="lessons-empty" id="lessonsEmpty" hidden>
+        <p class="lessons-empty-title">No lessons found</p>
+        <p class="lessons-empty-copy">Try another keyword like "prompt", "RAG", or "evaluation".</p>
+      </div>
+
+    </div>
+  </main>
+
+  <hr class="divider">
+
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
+    <div>
+      <div class="footer-brand">Hedi Manai</div>
+      <div class="footer-sub">Shipping AI agents that actually work.</div>
+    </div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a class="footer-link" href="../index.html#home">Home</a>
+      <a class="footer-link" href="../index.html#latest-notes">Writing</a>
+      <a class="footer-link" href="../index.html#prompt-templates">Templates</a>
+      <a class="footer-link" href="../index.html#contact">Contact</a>
+    </nav>
+    <div class="footer-note">Built with clarity · No fluff</div>
+  </footer>
+
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-14DXVR7B6E"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-14DXVR7B6E');
+  </script>
+
+
+  <script src="../assets/js/main.js"></script>
+  <script>
+    const lessons = [
+      {
+        num: '01',
+        series: 'Prompt Engineering',
+        title: 'What Is Prompt Engineering? A First Principles Introduction',
+        excerpt: 'A rigorous first-principles introduction to how prompts work, why they fail, and the core techniques that matter in practice.',
+        date: 'Apr 2026',
+        href: 'what-is-prompt-engineering.html'
+      },
+      {
+        num: '02',
+        series: 'Prompt Engineering',
+        title: 'Building the Production System Prompt',
+        excerpt: 'How to write production-grade system prompts with reliable structure, tool rules, and safety boundaries.',
+        date: 'Apr 2026',
+        href: 'building-the-production-system-prompt.html'
+      },
+      {
+        num: '03',
+        series: 'Prompt Engineering',
+        title: 'Chain-of-Thought and Self-Consistency',
+        excerpt: 'A field-tested guide to chain-of-thought, self-consistency, key variants, and when these reasoning techniques fail.',
+        date: 'Apr 2026',
+        href: 'chain-of-thought-and-self-consistency.html'
+      },
+      {
+        num: '04',
+        series: 'Prompt Engineering',
+        title: 'Prompt Chaining and Pipeline Design',
+        excerpt: 'How to decompose complex tasks into reliable multi-step pipelines — the four chain architectures, the router pattern, state management, and failure modes.',
+        date: 'Apr 2026',
+        href: 'prompt-chaining-and-pipeline-design.html'
+      },
+      {
+        num: '05',
+        series: 'Prompt Engineering',
+        title: 'RAG and Context Injection',
+        excerpt: 'Retrieval-augmented generation from first principles — chunking strategies, embedding and search, context injection patterns, and the four failure modes that break production RAG pipelines silently.',
+        date: 'Apr 2026',
+        href: 'rag-and-context-injection.html'
+      },
+      {
+        num: '06',
+        series: 'Prompt Engineering',
+        title: 'Evaluation and Testing',
+        excerpt: 'How to build eval datasets, metrics, and automated pipelines to measure prompt and retrieval quality systematically — and decide when an AI system is truly ready to ship.',
+        date: 'Apr 2026',
+        href: 'evaluation-and-testing.html'
+      }
+    ];
+
+    const grid = document.getElementById('lessonsGrid');
+    const searchInput = document.getElementById('lessonsSearch');
+    const countEl = document.getElementById('lessonsCount');
+    const emptyEl = document.getElementById('lessonsEmpty');
+    const seriesSections = document.querySelectorAll('.lessons-series');
+
+    function renderLessons() {
+      const q = searchInput.value.trim().toLowerCase();
+      const filtered = q
+        ? lessons.filter(l => `${l.title} ${l.series} ${l.excerpt}`.toLowerCase().includes(q))
+        : lessons.slice();
+
+      countEl.textContent = filtered.length === 1 ? '1 lesson' : `${filtered.length} lessons`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyEl.hidden = false;
+        seriesSections.forEach(s => s.style.display = 'none');
+        return;
+      }
+
+      emptyEl.hidden = true;
+      seriesSections.forEach(s => s.style.display = '');
+
+      grid.innerHTML = filtered.map(l => `
+        <a class="lesson-card" href="${l.href}">
+          <div class="lesson-card-top">
+            <div class="lesson-card-meta">
+              <span class="lesson-card-num">${l.num}</span>
+              <span class="ccard-sep"></span>
+              <span class="lesson-card-date">${l.date}</span>
+            </div>
+            <h3 class="lesson-card-title">${l.title}</h3>
+            <p class="lesson-card-excerpt">${l.excerpt}</p>
+          </div>
+          <span class="lesson-card-read">
+            Read
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </a>
+      `).join('');
+    }
+
+    searchInput.addEventListener('input', renderLessons);
+    renderLessons();
+  </script>
+</body>
+
+</html>
+
+
